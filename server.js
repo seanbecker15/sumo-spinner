@@ -76,10 +76,12 @@ function updateSpinner(spinner) {
 		break;
 	default: break; 
 	}
-	if (spinner.dx > 10)
-		spinner.dx = 10;
-	if (spinner.dy > 10)
-		spinner.dy = 10;
+	const speed = Math.sqrt(spinner.dx * spinner.dx + spinner.dy * spinner.dy);
+	const terminalVelocity = 10;
+	if (speed > terminalVelocity) {
+		spinner.dx *= terminalVelocity / speed;
+		spinner.dy *= terminalVelocity / speed;
+	}
 	spinner.directionRequest = undefined;
 	spinner.x += spinner.dx;
 	spinner.y += spinner.dy;
