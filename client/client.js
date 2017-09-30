@@ -63,29 +63,31 @@ socket.on('lose', function () {
 
 socket.emit("waitForGame");
 
+let keys = {};
+const converter = {
+    38: 'w', 87: 'w', 
+    40: 's', 83: 's', 
+    37: 'a', 65: 'a', 
+    39: 'd', 68: 'd'
+}
+
 document.onkeydown = function (event) {
-    event = event || window.event;
-    switch (event.keyCode) {
-        case 38:
-        case 87:
-            socket.emit('keyPress', 'w');
-            break;
-        case 40:
-        case 83:
-            socket.emit('keyPress', 's');
-            break;
-        case 37:
-        case 65:
-            socket.emit('keyPress', 'a');
-            break;
-        case 39:
-        case 68:
-            socket.emit('keyPress', 'd');
-            break;
-        default:
-            break;
+    if (converter[event.keyCode]) {
+        event = event || window.event;
+        keys[converter[event.keyCode]] = true;
+        //console.log(`Added ${event.keyCode}; keys = ${Object.keys(keys)}`);
+        const keysPressed = Object.keys(keys).sort().join('');
+        socket.emit('keyPress', keysPressed);
     }
 };
+
+document.onkeyup = function (event) {
+    if (converter[event.keyCode]) {
+        event = event || window.event;
+        delete keys[converter[event.keyCode]];
+        //console.log(`Removed ${converter[event.keyCode]}`);
+    }
+}
 
 window.onresize = function () {
     displaySize = display.width = display.height = Math.min(window.innerWidth, window.innerHeight) * 2;
