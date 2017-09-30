@@ -28,11 +28,17 @@ socket.on('startGame', function(data) {
     playing = true;
 });
 
-let player = {
+socket.on('gameOver', function() {
+    playing = false;
+    context.clearRect(0, 0, displaySize, displaySize);
+    context.font = '50px arial'
+    context.fillStyle = 'rgb(255,0,0)';
+    context.fillText('waiting for game...', 500, 500);
+    context.fill();
+    socket.emit('waitForGame');
+});
 
-};
-
-socket.emit("waitForGame", player);
+socket.emit("waitForGame");
 
 document.onkeydown = function (event) {
     event = event || window.event;

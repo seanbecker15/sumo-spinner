@@ -103,10 +103,16 @@ class Game {
 	}
 	playerLeave(clientId) {
 		console.log(`Client ${clientId} has left game ${this.gameId}`);
+		this.gameEnd();
 	}
 	gameEnd() {
 		console.log(`Game ${this.gameId} is over`);
+		this.clientA.isPlaying = false;
+		this.clientB.isPlaying = false;
+		this.clientA.emit('gameOver');
+		this.clientB.emit('gameOver');
 		gamesInProgress--;
+		delete games[this.gameId];
 	}
 }
 
