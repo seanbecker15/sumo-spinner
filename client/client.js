@@ -80,8 +80,8 @@ function drawSpinner(spinner) {
     let w = 150 * blockSize;
     let h = 150 * blockSize;
     context.translate(x, y);
-    rotation += 5;
-    context.rotate(rotation * Math.PI / 64);
+    rotation += 8;
+    context.rotate(rotation * Math.PI / 180);
     context.translate(-x, -y);
     context.drawImage(spinnerImage, x - w / 2, y - h / 2, w, h);
     context.restore();
