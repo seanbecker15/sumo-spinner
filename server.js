@@ -36,7 +36,7 @@ let games = {};
 let clients = {};
 let maxGames = 5;
 class Spinner {
-	constructor(x=0, y=0, radius=100) {
+	constructor(x=0, y=0,radius=100) {
 		this.x = x;
 		this.y = y;
 		this.dx = 0;
@@ -48,7 +48,7 @@ class Spinner {
 			|| this.x + this.radius > gridSize 
 			|| this.y - this.radius < 0 
 			|| this.y + this.radius > gridSize) {
-				this.game.gameEnd(this);
+				return 'lose';
 			}
 		switch (this.directionRequest) {
 		case 'w':
@@ -96,10 +96,16 @@ class Game {
 		console.log(`Game ${this.gameId} starting...`);
 	}
 	tick() {
-		this.spinnerA.move();
-		this.spinnerB.move();
+		const resultA = this.spinnerA.move();
+		const resultB = this.spinnerB.move();
 		this.clientA.emit('update', [this.spinnerA, this.spinnerB]);
 		this.clientB.emit('update', [this.spinnerA, this.spinnerB]);
+		if (resultA === 'lose') {
+			this.gameEnd('a');
+		}
+		if (resultB === 'lose') {
+			this.gameEnd('b');
+		}
 	}
 	input(clientId, key) {
 		if (this.clientA.id === clientId) {
@@ -110,15 +116,15 @@ class Game {
 	}
 	playerLeave(clientId) {
 		console.log(`Client ${clientId} has left game ${this.gameId}`);
-		if (clientA.id === clientId) {
-			this.gameEnd(this.spinnerA);
+		if (this.clientA.id === clientId) {
+			this.gameEnd('a');
 		} else {
-			this.gameEnd(this.spinnerB);
+			this.gameEnd('b');
 		}
 	}
-	gameEnd(losingSpinner) {
-		const winner = (this.spinnerA === losingSpinner) ? clientB : clientA;
-		const loser = (this.spinnerA === losingSpinner) ? clientA : clientB;
+	gameEnd(result) {
+		const winner = (result === 'a') ? this.clientB : this.clientA;
+		const loser = (result === 'a') ? this.clientA : this.clientB;
 		console.log(`Game ${this.gameId} is over`);
 		this.clientA.isPlaying = false;
 		this.clientB.isPlaying = false;

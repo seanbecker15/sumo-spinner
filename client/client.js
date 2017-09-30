@@ -35,7 +35,7 @@ socket.on('gameOver', function () {
     context.clearRect(0, 0, displaySize, displaySize);
     context.font = '50px arial'
     context.fillStyle = 'rgb(255,0,0)';
-    context.fillText('waiting for game...', 500, 500);
+    context.fillText('waiting for game...', 500 * blockSize, 500 * blockSize);
     context.fill();
     socket.emit('waitForGame');
 });
@@ -45,7 +45,7 @@ socket.on('win', function() {
     context.clearRect(0, 0, displaySize, displaySize);
     context.font = '50px arial'
     context.fillStyle = 'rgb(255,0,0)';
-    context.fillText('You won! Wait to play again...', 500, 500);
+    context.fillText('You won! Wait to play again...', 500 * blockSize, 500 * blockSize);
     context.fill();
     setTimeout(function() {
         socket.emit('waitForGame');
@@ -58,7 +58,7 @@ socket.on('lose', function() {
     context.clearRect(0, 0, displaySize, displaySize);
     context.font = '50px arial'
     context.fillStyle = 'rgb(255,0,0)';
-    context.fillText('You lost :( Wait to play again...', 500, 500);
+    context.fillText('You lost :( Wait to play again...', 500 * blockSize, 500 * blockSize);
     context.fill();
     setTimeout(function() {
         socket.emit('waitForGame');
