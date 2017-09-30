@@ -11,15 +11,6 @@ function guid() {
     });
 }
 
-app.use("*", function (req, res, next) {
-    if (process.env.NODE_ENV === 'production')
-        if (req.headers['x-forwarded-proto'] != 'https')
-            return res.redirect('https://' + req.headers.host + req.url);
-        else
-            return next();
-    else
-        return next();
-});
 app.use(express.static(__dirname + "/client"));
 app.all("*", function (req, res) {
     res.redirect("/");
@@ -50,29 +41,29 @@ class Spinner {
         }
         if (this.directionRequest) {
             if (this.directionRequest.includes('w')) {
-				if(this.dy >= 0)
-					this.dy += 1;
-				else
-					this.dy += 2.5;
+                if (this.dy >= 0)
+                    this.dy += 1;
+                else
+                    this.dy += 2.5;
 
             }
             if (this.directionRequest.includes('s')) {
-				if(this.dy <= 0)
-					this.dy -= 1;
-				else
-					this.dy -= 2.5;
+                if (this.dy <= 0)
+                    this.dy -= 1;
+                else
+                    this.dy -= 2.5;
             }
             if (this.directionRequest.includes('a')) {
-				if(this.dx <= 0)
-					this.dx -= 1;
-				else
-					this.dx -= 2.5;
+                if (this.dx <= 0)
+                    this.dx -= 1;
+                else
+                    this.dx -= 2.5;
             }
             if (this.directionRequest.includes('d')) {
-                if(this.dx >= 0)
-					this.dx += 1;
-				else
-					this.dx += 2.5;
+                if (this.dx >= 0)
+                    this.dx += 1;
+                else
+                    this.dx += 2.5;
             }
         }
         this.directionRequest = undefined;
@@ -123,10 +114,10 @@ class Game {
     }
     detectCollision() {
         if (this.distanceBetween() < (this.spinnerA.radius + this.spinnerB.radius)) {
-			const x = (this.spinnerA.x + this.spinnerB.x) / 2;
-			const y = (this.spinnerA.y + this.spinnerB.y) / 2;
-			this.clientA.emit('hit', {x, y});
-			this.clientB.emit('hit', {x, y});
+            const x = (this.spinnerA.x + this.spinnerB.x) / 2;
+            const y = (this.spinnerA.y + this.spinnerB.y) / 2;
+            this.clientA.emit('hit', { x, y });
+            this.clientB.emit('hit', { x, y });
             const tmpx = this.spinnerA.dx;
             const tmpy = this.spinnerA.dy;
             this.spinnerA.dx = this.spinnerB.dx * this.spinnerB.dtheta / 5;
