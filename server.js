@@ -5,11 +5,11 @@ const server = require("http").createServer(app);
 const io = require("socket.io")(server);
 
 function guid() {
-	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-	  var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-	  return v.toString(16);
-	});
-  }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
 
 app.use("*", function (req, res, next) {
     if (process.env.NODE_ENV === 'production')
@@ -36,7 +36,7 @@ let games = {};
 let clients = {};
 let maxGames = 5;
 class Spinner {
-	constructor(x=0, y=0, radius=100) {
+	constructor(x=0, y=0,radius=100) {
 		this.x = x;
 		this.y = y;
 		this.dx = 0;
@@ -48,7 +48,7 @@ class Spinner {
 			|| this.x + this.radius > gridSize 
 			|| this.y - this.radius < 0 
 			|| this.y + this.radius > gridSize) {
-				this.game.gameEnd(this);
+				return 'lose';
 			}
 		switch (this.directionRequest) {
 		case 'w':
@@ -96,10 +96,16 @@ class Game {
 		console.log(`Game ${this.gameId} starting...`);
 	}
 	tick() {
-		this.spinnerA.move();
-		this.spinnerB.move();
+		const resultA = this.spinnerA.move();
+		const resultB = this.spinnerB.move();
 		this.clientA.emit('update', [this.spinnerA, this.spinnerB]);
 		this.clientB.emit('update', [this.spinnerA, this.spinnerB]);
+		if (resultA === 'lose') {
+			this.gameEnd('a');
+		}
+		if (resultB === 'lose') {
+			this.gameEnd('b');
+		}
 	}
 	input(clientId, key) {
 		if (this.clientA.id === clientId) {
@@ -110,15 +116,15 @@ class Game {
 	}
 	playerLeave(clientId) {
 		console.log(`Client ${clientId} has left game ${this.gameId}`);
-		if (clientA.id === clientId) {
-			this.gameEnd(this.spinnerA);
+		if (this.clientA.id === clientId) {
+			this.gameEnd('a');
 		} else {
-			this.gameEnd(this.spinnerB);
+			this.gameEnd('b');
 		}
 	}
-	gameEnd(losingSpinner) {
-		const winner = (this.spinnerA === losingSpinner) ? clientB : clientA;
-		const loser = (this.spinnerA === losingSpinner) ? clientA : clientB;
+	gameEnd(result) {
+		const winner = (result === 'a') ? this.clientB : this.clientA;
+		const loser = (result === 'a') ? this.clientA : this.clientB;
 		console.log(`Game ${this.gameId} is over`);
 		this.clientA.isPlaying = false;
 		this.clientB.isPlaying = false;
@@ -133,42 +139,42 @@ io.on("connection", function (client) {
     console.log("Client " + client.id + " has connected.");
     client.isConnected = true;
     client.isPlaying = false;
-	clients[client.id] = client;
-	client.on('waitForGame', function() {
-		console.log(`Client ${client.id} has started waiting for a game`);
-		clientsWaiting.push(client.id);
-	});
+    clients[client.id] = client;
+    client.on('waitForGame', function () {
+        console.log(`Client ${client.id} has started waiting for a game`);
+        clientsWaiting.push(client.id);
+    });
     client.on("keyPress", function (key) {
         if (client.isPlaying) {
-			client.game.input(client.id, key);
-			//console.log(`Got a keypress, ${key} from client ${client.id}`);
+            client.game.input(client.id, key);
+            //console.log(`Got a keypress, ${key} from client ${client.id}`);
         }
     });
     client.on("disconnect", function () {
-		console.log("Client " + client.id + " has disconnected.");
-		if (client.isPlaying) {
-			client.game.playerLeave(client.id);
-			client.isPlaying = false;
-		}
+        console.log("Client " + client.id + " has disconnected.");
+        if (client.isPlaying) {
+            client.game.playerLeave(client.id);
+            client.isPlaying = false;
+        }
         client.isConnected = false;
     });
 });
 
 setInterval(function () {
-	for (var gameId in games) {
-		games[gameId].tick(); //Updates game data, sends to clients
-	}
-	let newClientsWaiting = [];
-	for(var clientId of clientsWaiting) {
-		const client = clients[clientId];
-		if (client.isConnected && !client.isPlaying) {
-			newClientsWaiting.push(clientId);
-		}
-	}
-	clientsWaiting = newClientsWaiting;
-	if (clientsWaiting.length > 1 && gamesInProgress < maxGames) {
-		let [clientIdA, clientIdB] = clientsWaiting.splice(0, 2);
-		const newGame = new Game(clientIdA, clientIdB);
-		games[newGame.gameId] = newGame;
-	}
-}, 40);
+    for (var gameId in games) {
+        games[gameId].tick(); //Updates game data, sends to clients
+    }
+    let newClientsWaiting = [];
+    for (var clientId of clientsWaiting) {
+        const client = clients[clientId];
+        if (client.isConnected && !client.isPlaying) {
+            newClientsWaiting.push(clientId);
+        }
+    }
+    clientsWaiting = newClientsWaiting;
+    if (clientsWaiting.length > 1 && gamesInProgress < maxGames) {
+        let [clientIdA, clientIdB] = clientsWaiting.splice(0, 2);
+        const newGame = new Game(clientIdA, clientIdB);
+        games[newGame.gameId] = newGame;
+    }
+}, 20);

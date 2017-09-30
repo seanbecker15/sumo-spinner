@@ -30,15 +30,25 @@ socket.on('startGame', function (data) {
     playing = true;
 });
 
+socket.on('gameOver', function () {
+    playing = false;
+    context.clearRect(0, 0, displaySize, displaySize);
+    context.font = '50px arial'
+    context.fillStyle = 'rgb(255,0,0)';
+    context.fillText('waiting for game...', 500 * blockSize, 500 * blockSize);
+    context.fill();
+    socket.emit('waitForGame');
+});
+
 socket.on('win', function() {
     playing = false;
     context.clearRect(0, 0, displaySize, displaySize);
     context.font = '50px arial'
     context.fillStyle = 'rgb(255,0,0)';
-    context.fillText('You won! Wait to play again...', 500, 500);
+    context.fillText('You won! Wait to play again...', 500 * blockSize, 500 * blockSize);
     context.fill();
     setTimeout(function() {
-    socket.emit('waitForGame');
+        socket.emit('waitForGame');
     }, 5000);
     // Idea: Winner of game is placed at beginning of queue
 })
@@ -48,13 +58,9 @@ socket.on('lose', function() {
     context.clearRect(0, 0, displaySize, displaySize);
     context.font = '50px arial'
     context.fillStyle = 'rgb(255,0,0)';
-    context.fillText('You lost :( Wait to play again...', 500, 500);
+    context.fillText('You lost :( Wait to play again...', 500 * blockSize, 500 * blockSize);
     context.fill();
     setTimeout(function() {
-        context.font = '50px arial'
-        context.fillStyle = 'rgb(255,0,0)';
-        context.fillText('waiting for game...', 500, 500);
-        context.fill();
         socket.emit('waitForGame');
     }, 5000);
     // Idea: loser of game is pushed to end of queue
@@ -97,11 +103,11 @@ function drawSpinner(spinner) {
     context.save();
     let x = spinner.x * blockSize;
     let y = spinner.y * blockSize;
-    let w = 150 * blockSize;
-    let h = 150 * blockSize;
+    let w = 200 * blockSize;
+    let h = 200 * blockSize;
     context.translate(x, y);
-    rotation += 5;
-    context.rotate(rotation * Math.PI / 64);
+    rotation += 8;
+    context.rotate(rotation * Math.PI / 180);
     context.translate(-x, -y);
     context.drawImage(spinnerImage, x - w / 2, y - h / 2, w, h);
     context.restore();
