@@ -108,6 +108,13 @@ function drawSpinner(spinner, image) {
     context.translate(-x, -y);
     context.drawImage(image, x - w / 2, y - h / 2, w, h);
     context.restore();
+    if (spinner.name) {
+        console.log(spinner.name);
+        context.font = '30px Comic Sans MS';
+        context.fillStyle = 'rgb(255,0,0)';
+        context.textAlign = 'center';
+        context.fillText(spinner.name, x, y + h + blockSize);
+    }
 }
 
 function drawPowerup(powerup) {
@@ -162,9 +169,10 @@ function frame() {
 
 function play() {
     let modal = document.getElementById('modal');
+    let name = document.getElementById('name');
     modal.style.display = 'none';
     context.clearRect(0, 0, displaySize, displaySize);
     splash('Waiting for game... ⏳');
-    socket.emit("waitForGame");
+    socket.emit('waitForGame', name.value);
     frame();
 };
