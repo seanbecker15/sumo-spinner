@@ -69,10 +69,14 @@ window.onresize = function () {
 
 function drawSpinner(spinner) {
     context.save();
-    context.translate(spinner.x * blockSize, spinner.y * blockSize);
+    let x = spinner.x * blockSize;
+    let y = spinner.y * blockSize;
+    let w = 145 * blockSize;
+    let h = 135 * blockSize;
+    context.translate(x, y);
     context.rotate(rotation++ * Math.PI / 64);
-    context.translate(-spinner.x * blockSize, -spinner.y * blockSize);
-    context.drawImage(spinnerImage, spinner.x * blockSize - 145 * blockSize / 2, spinner.y * blockSize - 135 * blockSize / 2, 145 * blockSize, 135 * blockSize);
+    context.translate(-x, -y);
+    context.drawImage(spinnerImage, x - w / 2, y - h / 2, w, h);
     context.restore();
 }
 
