@@ -15,10 +15,11 @@ context.fillStyle = 'rgb(255,0,0)';
 context.fillText('waiting for game...', 500, 500);
 context.fill();
 
+let spinners = [];
 
 
 socket.on("update", function (data) {
-    spinners = data.spinners;
+    spinners = data;
     requestAnimationFrame(frame);
 });
 
@@ -71,8 +72,6 @@ function drawSpinner(spinner) {
 
 function frame() {
     context.clearRect(0, 0, displaySize, displaySize);
-    for (var key in spinners) {
-        drawSpinner(spinners[key]);
-    }
+    spinners.forEach((spinner) => drawSpinner(spinner));
     context.fill();
 }

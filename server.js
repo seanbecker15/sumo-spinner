@@ -33,6 +33,7 @@ const gridSize = 1000;
 let gamesInProgress = 0;
 let clientsWaiting = [];
 let games = {};
+let clients = {};
 let maxGames = 5;
 class Spinner {
 	constructor() {
@@ -78,24 +79,26 @@ class Game {
 		this.gameId = guid();
 		this.clientA = clients[clientIdA];
 		this.clientA.isPlaying = true;
+		this.clientA.game = this;
 		this.clientB = clients[clientIdB];
 		this.clientB.isPlaying = true;
+		this.clientB.game = this;
 		this.spinnerA = new Spinner();
 		this.spinnerB = new Spinner();
 		gamesInProgress++;
 		console.log(`Game ${this.gameId} starting...`);
 	}
 	tick() {
-		spinnerA.move();
-		spinnerB.move();
-		clientA.emit('update', {spinnerA, spinnerB});
-		clientB.emit('update', {spinnerA, spinnerB});
+		this.spinnerA.move();
+		this.spinnerB.move();
+		this.clientA.emit('update', [this.spinnerA, this.spinnerB]);
+		this.clientB.emit('update', [this.spinnerA, this.spinnerB]);
 	}
 	input(clientId, key) {
-		if (clientA.id === clientId) {
-			spinnerA.input(key);
-		} else if (clientB.id === clientId) {
-			spinnerB.input(key);
+		if (this.clientA.id === clientId) {
+			this.spinnerA.input(key);
+		} else if (this.clientB.id === clientId) {
+			this.spinnerB.input(key);
 		}
 	}
 	playerLeave(clientId) {
