@@ -36,13 +36,20 @@ let games = {};
 let clients = {};
 let maxGames = 5;
 class Spinner {
-	constructor() {
-		this.x = 0;
-		this.y = 0;
+	constructor(x=0, y=0, radius=100) {
+		this.x = x;
+		this.y = y;
 		this.dx = 0;
 		this.dy = 0;
+		this.radius = radius;
 	}
 	move() {
+		if (this.x - this.radius < 0 
+			|| this.x + this.radius > gridSize 
+			|| this.y - this.radius < 0 
+			|| this.y + this.radius > gridSize) {
+				this.game.gameEnd(this);
+			}
 		switch (this.directionRequest) {
 		case 'w':
 			this.dy += 1;
@@ -83,8 +90,8 @@ class Game {
 		this.clientB = clients[clientIdB];
 		this.clientB.isPlaying = true;
 		this.clientB.game = this;
-		this.spinnerA = new Spinner();
-		this.spinnerB = new Spinner();
+		this.spinnerA = new Spinner(200, 200);
+		this.spinnerB = new Spinner(gridSize - 200, gridSize - 200);
 		gamesInProgress++;
 		console.log(`Game ${this.gameId} starting...`);
 	}
@@ -103,14 +110,20 @@ class Game {
 	}
 	playerLeave(clientId) {
 		console.log(`Client ${clientId} has left game ${this.gameId}`);
-		this.gameEnd();
+		if (clientA.id === clientId) {
+			this.gameEnd(this.spinnerA);
+		} else {
+			this.gameEnd(this.spinnerB);
+		}
 	}
-	gameEnd() {
+	gameEnd(losingSpinner) {
+		const winner = (this.spinnerA === losingSpinner) ? clientB : clientA;
+		const loser = (this.spinnerA === losingSpinner) ? clientA : clientB;
 		console.log(`Game ${this.gameId} is over`);
 		this.clientA.isPlaying = false;
 		this.clientB.isPlaying = false;
-		this.clientA.emit('gameOver');
-		this.clientB.emit('gameOver');
+		winner.emit('win');
+		loser.emit('lose');
 		gamesInProgress--;
 		delete games[this.gameId];
 	}
