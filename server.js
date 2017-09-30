@@ -110,6 +110,10 @@ class Game {
     }
     detectCollision() {
         if (this.distanceBetween() < (this.spinnerA.radius + this.spinnerB.radius)) {
+			const x = (this.spinnerA.x + this.spinnerB.x) / 2;
+			const y = (this.spinnerA.y + this.spinnerB.y) / 2;
+			this.clientA.emit('hit', {x, y});
+			this.clientB.emit('hit', {x, y});
             const tmpx = this.spinnerA.dx;
             const tmpy = this.spinnerA.dy;
             this.spinnerA.dx = this.spinnerB.dx * this.spinnerB.dtheta / 5;
