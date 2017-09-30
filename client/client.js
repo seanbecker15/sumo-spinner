@@ -10,11 +10,9 @@ let blockSize = displaySize / gridSize;
 display.style.width = (displaySize / 2) + "px";
 display.style.height = (displaySize / 2) + "px";
 let playing = false;
-context.font = '50px arial'
-context.fillStyle = 'rgb(255,0,0)';
-context.textAlign = 'center';
-context.fillText('waiting for game...', 500 * blockSize, 500 * blockSize);
-context.fill();
+
+context.clearRect(0, 0, displaySize, displaySize);
+splash('Waiting for game...');
 
 let spinnerBlue = new Image();
 spinnerBlue.src = './spinner-blue.svg';
@@ -36,29 +34,19 @@ socket.on('startGame', function (data) {
 socket.on('win', function () {
     playing = false;
     context.clearRect(0, 0, displaySize, displaySize);
-    context.font = '50px arial';
-    context.fillStyle = 'rgb(255,0,0)';
-    context.textAlign = 'center';
-    context.fillText('You won! Wait to play again...', 500 * blockSize, 500 * blockSize);
-    context.fill();
+    splash('You won!');
     setTimeout(function () {
         socket.emit('waitForGame');
     }, 1000);
-    // Idea: Winner of game is placed at beginning of queue
 })
 
 socket.on('lose', function () {
     playing = false;
     context.clearRect(0, 0, displaySize, displaySize);
-    context.font = '50px arial';
-    context.fillStyle = 'rgb(255,0,0)';
-    context.textAlign = 'center';
-    context.fillText('You lost :( Wait to play again...', 500 * blockSize, 500 * blockSize);
-    context.fill();
+    splash('You lost :(');
     setTimeout(function () {
         socket.emit('waitForGame');
     }, 1000);
-    // Idea: loser of game is pushed to end of queue
 })
 
 socket.emit("waitForGame");
@@ -75,7 +63,6 @@ document.onkeydown = function (event) {
     if (converter[event.keyCode]) {
         event = event || window.event;
         keys[converter[event.keyCode]] = true;
-        //console.log(`Added ${event.keyCode}; keys = ${Object.keys(keys)}`);
         const keysPressed = Object.keys(keys).sort().join('');
         socket.emit('keyPress', keysPressed);
     }
@@ -85,7 +72,6 @@ document.onkeyup = function (event) {
     if (converter[event.keyCode]) {
         event = event || window.event;
         delete keys[converter[event.keyCode]];
-        //console.log(`Removed ${converter[event.keyCode]}`);
     }
 }
 
@@ -109,6 +95,15 @@ function drawSpinner(spinner, image) {
     context.drawImage(image, x - w / 2, y - h / 2, w, h);
     context.drawImage(image, x - w / 2, y - h / 2, w, h);
     context.restore();
+}
+
+function splash(message) {
+    console.log('splashing...');
+    context.font = '50px arial'
+    context.fillStyle = 'rgb(255,0,0)';
+    context.textAlign = 'center';
+    context.fillText(message, 500 * blockSize, 500 * blockSize);
+    context.fill();
 }
 
 function frame() {
