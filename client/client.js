@@ -133,9 +133,9 @@ function frame() {
         if (Date.now() - lastUpdated > 50) {
             console.log('Client is behind... filling in data');
             spinners[0].x += spinners[0].dx;
-            spinners[0].y += spinners[0].dy;
+            spinners[0].y -= spinners[0].dy;
             spinners[1].x += spinners[1].dx;
-            spinners[1].y += spinners[1].dy;
+            spinners[1].y -= spinners[1].dy;
         }
         if (hits.timer-- > 0) {
             context.drawImage(fire, (hits.x - 40) * blockSize, (hits.y - 40) * blockSize, 80 * blockSize, 80 * blockSize);
