@@ -6,13 +6,12 @@ const gridSize = 1000;
 
 let displaySize = display.width = display.height = Math.min(window.innerWidth, window.innerHeight) * 2;
 let blockSize = displaySize / gridSize;
-
+let splashMessage = '';
 display.style.width = (displaySize / 2) + "px";
 display.style.height = (displaySize / 2) + "px";
 let playing = false;
 
-context.clearRect(0, 0, displaySize, displaySize);
-splash('Waiting for game...');
+
 
 let spinnerBlue = new Image();
 spinnerBlue.src = './spinner-blue.svg';
@@ -21,13 +20,14 @@ spinnerRed.src = './spinner-red.svg';
 let fire = new Image();
 fire.src = './fire.png';
 
-let hit = {};
+let hits = {};
 let rotation = 0;
 let spinners = [];
 
+
 socket.on("update", function (data) {
+    splashMessage = '';
     spinners = data;
-    requestAnimationFrame(frame);
 });
 
 socket.on('startGame', function (data) {
@@ -53,12 +53,18 @@ socket.on('lose', function () {
 })
 
 socket.on('hit', function (coordinates) {
-    hit.timer = 50;
-    hit.x = coordinates.x;
-    hit.y = coordinates.y;
+    hits.timer = 50;
+    hits.x = coordinates.x;
+    hits.y = coordinates.y;
 })
 
-socket.emit("waitForGame");
+window.onload = function () {
+    context.clearRect(0, 0, displaySize, displaySize);
+    splash('Waiting for game...');
+    socket.emit("waitForGame");
+    frame();
+};
+
 
 let keys = {};
 const converter = {
@@ -107,19 +113,27 @@ function drawSpinner(spinner, image) {
 }
 
 function splash(message) {
+    console.log('splashing...');
+    splashMessage = message;
+}
+
+function displaySplash() {
     context.font = '50px arial'
     context.fillStyle = 'rgb(255,0,0)';
     context.textAlign = 'center';
-    context.fillText(message, 500 * blockSize, 500 * blockSize);
-    context.fill();
+    context.fillText(splashMessage, 500 * blockSize, 500 * blockSize);
 }
 
 function frame() {
     context.clearRect(0, 0, displaySize, displaySize);
-    drawSpinner(spinners[1], spinnerRed);
-    drawSpinner(spinners[0], spinnerBlue);
-    if (hit.timer-- > 0) {
-        context.drawImage(fire, (hit.x - 40) * blockSize, (hit.y - 40) * blockSize, 80 * blockSize, 80 * blockSize);
+    if (spinners.length > 0) {
+        drawSpinner(spinners[1], spinnerRed);
+        drawSpinner(spinners[0], spinnerBlue);
+        if (hits.timer-- > 0) {
+            context.drawImage(fire, (hits.x - 40) * blockSize, (hits.y - 40) * blockSize, 80 * blockSize, 80 * blockSize);
+        }
     }
+    displaySplash();
     context.fill();
+    requestAnimationFrame(frame);
 }
