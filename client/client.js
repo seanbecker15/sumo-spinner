@@ -32,37 +32,14 @@ socket.on('startGame', function (data) {
     playing = true;
 });
 
-<<<<<<< HEAD
-socket.on('win', function() {
-=======
-socket.on('gameOver', function () {
-    playing = false;
-    context.clearRect(0, 0, displaySize, displaySize);
-    context.font = '50px arial'
-    context.fillStyle = 'rgb(255,0,0)';
-    context.fillText('waiting for game...', 500 * blockSize, 500 * blockSize);
-    context.fill();
-    socket.emit('waitForGame');
-});
-
 socket.on('win', function () {
->>>>>>> e8d8fd9e2c8b0201fc83f58df2fd55ee7504014a
     playing = false;
     context.clearRect(0, 0, displaySize, displaySize);
     context.font = '50px arial';
     context.fillStyle = 'rgb(255,0,0)';
     context.fillText('You won! Wait to play again...', 500 * blockSize, 500 * blockSize);
     context.fill();
-<<<<<<< HEAD
-    setTimeout(function() {
-=======
     setTimeout(function () {
-        context.clearRect(0, 0, displaySize, displaySize);
-        context.font = '50px arial'
-        context.fillStyle = 'rgb(255,0,0)';
-        context.fillText('waiting for game...', 500, 500);
-        context.fill();
->>>>>>> e8d8fd9e2c8b0201fc83f58df2fd55ee7504014a
         socket.emit('waitForGame');
     }, 5000);
     // Idea: Winner of game is placed at beginning of queue
@@ -75,16 +52,7 @@ socket.on('lose', function () {
     context.fillStyle = 'rgb(255,0,0)';
     context.fillText('You lost :( Wait to play again...', 500 * blockSize, 500 * blockSize);
     context.fill();
-<<<<<<< HEAD
-    setTimeout(function() {
-=======
     setTimeout(function () {
-        context.clearRect(0, 0, displaySize, displaySize);
-        context.font = '50px arial'
-        context.fillStyle = 'rgb(255,0,0)';
-        context.fillText('waiting for game...', 500, 500);
-        context.fill();
->>>>>>> e8d8fd9e2c8b0201fc83f58df2fd55ee7504014a
         socket.emit('waitForGame');
     }, 5000);
     // Idea: loser of game is pushed to end of queue
