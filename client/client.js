@@ -17,7 +17,10 @@ let spinnerBlue = new Image();
 spinnerBlue.src = './spinner-blue.svg';
 let spinnerRed = new Image();
 spinnerRed.src = './spinner-red.svg';
+let fire = new Image();
+fire.src = './fire.png';
 
+let hits = {};
 let rotation = 0;
 let spinners = [];
 
@@ -49,7 +52,13 @@ socket.on('lose', function () {
     }, 1000);
 })
 
-window.onload = function() {
+socket.on('hit', function (coordinates) {
+    hits.timer = 50;
+    hits.x = coordinates.x;
+    hits.y = coordinates.y;
+})
+
+window.onload = function () {
     context.clearRect(0, 0, displaySize, displaySize);
     splash('Waiting for game... ⏳');
     socket.emit("waitForGame");
@@ -120,6 +129,9 @@ function frame() {
     if (spinners.length > 0) {
         drawSpinner(spinners[1], spinnerRed);
         drawSpinner(spinners[0], spinnerBlue);
+        if (hits.timer-- > 0) {
+            context.drawImage(fire, (hits.x - 40) * blockSize, (hits.y - 40) * blockSize, 80 * blockSize, 80 * blockSize);
+        }
     }
     displaySplash();
     context.fill();
