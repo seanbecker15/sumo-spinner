@@ -50,16 +50,29 @@ class Spinner {
         }
         if (this.directionRequest) {
             if (this.directionRequest.includes('w')) {
-                this.dy += 2;
+				if(this.dy >= 0)
+					this.dy += 2;
+				else
+					this.dy += 4;
+
             }
             if (this.directionRequest.includes('s')) {
-                this.dy -= 2;
+				if(this.dy <= 0)
+					this.dy -= 2;
+				else
+					this.dy -= 4;
             }
             if (this.directionRequest.includes('a')) {
-                this.dx -= 2;
+				if(this.dx <= 0)
+					this.dx -= 2;
+				else
+					this.dx -= 4;
             }
             if (this.directionRequest.includes('d')) {
-                this.dx += 2;
+                if(this.dx >= 0)
+					this.dx -= 2;
+				else
+					this.dx -= 4;
             }
         }
         this.directionRequest = undefined;
