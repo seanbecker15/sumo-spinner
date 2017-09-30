@@ -60,7 +60,7 @@ function updateSpinner(spinner) {
 	//Todo update info of given spinner
 	//calculate physics
 	//detect collisions
-	console.log(spinner.directionRequest);
+	//console.log(spinner.directionRequest);
 	switch (spinner.directionRequest) {
 	case 'w':
 		spinner.dy += 1;
@@ -76,6 +76,10 @@ function updateSpinner(spinner) {
 		break;
 	default: break; 
 	}
+	if (spinner.dy > 10)
+		spinner.dy = 10;
+	if (spinner.dx > 10)
+		spinner.dx = 10;
 	spinner.directionRequest = undefined;
 	spinner.x += spinner.dx;
 	spinner.y += spinner.dy;
@@ -84,10 +88,10 @@ function updateSpinner(spinner) {
 setInterval(function () {
 	for (var key in spinners) {
 		updateSpinner(spinners[key]);
-		console.log(`Updated spinner ${key}`);
+		//console.log(`Updated spinner ${key}`);
 	}
 	for (var key in clients) {
 		clients[key].emit('update', {spinners});
-		console.log(`Updated client ${key}`);
+		//console.log(`Updated client ${key}`);
 	}
 }, 40);
