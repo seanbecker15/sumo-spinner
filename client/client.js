@@ -15,7 +15,6 @@ context.fillStyle = 'rgb(255,0,0)';
 context.fillText('waiting for game...', 500, 500);
 context.fill();
 
-let spinners = {};
 
 
 socket.on("update", function (data) {
@@ -36,15 +35,19 @@ socket.emit("waitForGame", player);
 document.onkeydown = function (event) {
     event = event || window.event;
     switch(event.keyCode) {
-    case 83:
+    case 38:
+    case 87:
         socket.emit('keyPress','w');
         break;
-    case 87:
+    case 40:
+    case 83:
         socket.emit('keyPress','s');
         break;
+    case 37:
     case 65:
         socket.emit('keyPress','a');
         break;
+    case 39:
     case 68:
         socket.emit('keyPress','d');
         break;

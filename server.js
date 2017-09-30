@@ -4,6 +4,13 @@ const port = process.env.PORT || 3000;
 const server = require("http").createServer(app);
 const io = require("socket.io")(server);
 
+function guid() {
+	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+	  var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+	  return v.toString(16);
+	});
+  }
+
 app.use("*", function (req, res, next) {
     if (process.env.NODE_ENV === 'production')
         if (req.headers['x-forwarded-proto'] != 'https')
@@ -22,12 +29,83 @@ server.listen(port, function () {
     console.log("Server running at port %s", port);
 });
 
-const gridSize = 40;
-let clients = {};
-let spinners = {};
-let gameInProgress = false;
+const gridSize = 1000;
+let gamesInProgress = 0;
 let clientsWaiting = [];
-let clientsPlaying = {};
+let games = {};
+let maxGames = 5;
+class Spinner {
+	constructor() {
+		this.x = 0;
+		this.y = 0;
+		this.dx = 0;
+		this.dy = 0;
+	}
+	move() {
+		switch (this.directionRequest) {
+		case 'w':
+			this.dy += 1;
+			break;
+		case 's':
+			this.dy -= 1;
+			break;
+		case 'a':
+			this.dx -= 1;
+			break;
+		case 'd':
+			this.dx += 1;
+			break;
+		default: break; 
+		}
+		this.directionRequest = undefined;
+		const speed = Math.sqrt(this.dx * this.dx + this.dy * this.dy);
+		const terminalVelocity = 10;
+		if (speed > terminalVelocity) {
+			this.dx *= terminalVelocity / speed;
+			this.dy *= terminalVelocity / speed;
+		}
+		this.x += this.dx;
+		this.y -= this.dy;
+	}
+	input(key) {
+		this.directionRequest = key;
+	}
+
+}
+
+class Game {
+	constructor(clientIdA, clientIdB) {
+		this.gameId = guid();
+		this.clientA = clients[clientIdA];
+		this.clientA.isPlaying = true;
+		this.clientB = clients[clientIdB];
+		this.clientB.isPlaying = true;
+		this.spinnerA = new Spinner();
+		this.spinnerB = new Spinner();
+		gamesInProgress++;
+		console.log(`Game ${this.gameId} starting...`);
+	}
+	tick() {
+		spinnerA.move();
+		spinnerB.move();
+		clientA.emit('update', {spinnerA, spinnerB});
+		clientB.emit('update', {spinnerA, spinnerB});
+	}
+	input(clientId, key) {
+		if (clientA.id === clientId) {
+			spinnerA.input(key);
+		} else if (clientB.id === clientId) {
+			spinnerB.input(key);
+		}
+	}
+	playerLeave(clientId) {
+		console.log(`Client ${clientId} has left game ${this.gameId}`);
+	}
+	gameEnd() {
+		console.log(`Game ${this.gameId} is over`);
+		gamesInProgress--;
+	}
+}
 
 io.on("connection", function (client) {
     console.log("Client " + client.id + " has connected.");
@@ -38,83 +116,37 @@ io.on("connection", function (client) {
 		console.log(`Client ${client.id} has started waiting for a game`);
 		clientsWaiting.push(client.id);
 	});
-    client.on("joinGame", function (spinner) {
-        console.log("Client " + client.id + " has joined the game.");
-		client.isPlaying = true;
-		spinner.x = 0;
-		spinner.y = 0;
-		spinner.dx = 0;
-		spinner.dy = 0;
-		spinners[client.id] = spinner;
-    });
     client.on("keyPress", function (key) {
         if (client.isPlaying) {
-			spinners[client.id].directionRequest = key;
+			client.game.input(client.id, key);
 			//console.log(`Got a keypress, ${key} from client ${client.id}`);
         }
     });
     client.on("disconnect", function () {
-        console.log("Client " + client.id + " has disconnected.");
+		console.log("Client " + client.id + " has disconnected.");
+		if (client.isPlaying) {
+			client.game.playerLeave(client.id);
+			client.isPlaying = false;
+		}
         client.isConnected = false;
-        if (client.isPlaying) {
-            console.log("Client " + client.id + " has left the game.");
-            client.isPlaying = false;
-        }
     });
 });
 
-function updateSpinner(spinner) {
-	//Todo update info of given spinner
-	//calculate physics
-	//detect collisions
-	//console.log(spinner.directionRequest);
-	switch (spinner.directionRequest) {
-	case 'w':
-		spinner.dy += 1;
-		break;
-	case 's':
-		spinner.dy -= 1;
-		break;
-	case 'a':
-		spinner.dx -= 1;
-		break;
-	case 'd':
-		spinner.dx += 1;
-		break;
-	default: break; 
-	}
-	const speed = Math.sqrt(spinner.dx * spinner.dx + spinner.dy * spinner.dy);
-	const terminalVelocity = 10;
-	if (speed > terminalVelocity) {
-		spinner.dx *= terminalVelocity / speed;
-		spinner.dy *= terminalVelocity / speed;
-	}
-	spinner.directionRequest = undefined;
-	spinner.x += spinner.dx;
-	spinner.y += spinner.dy;
-}
-
 setInterval(function () {
-	if (gameInProgress) {
-		for (var key in spinners) {
-			if (clients[key].isPlaying)
-				updateSpinner(spinners[key]);
-			//console.log(`Updated spinner ${key}`);
+	for (var gameId in games) {
+		games[gameId].tick(); //Updates game data, sends to clients
+	}
+	let newClientsWaiting = [];
+	for(var clientId of clientsWaiting) {
+		const client = clients[clientId];
+		if (client.isConnected && !client.isPlaying) {
+			newClientsWaiting.push(clientId);
 		}
-		for (var key in clients) {
-			clients[key].emit('update', {spinners});
-			//console.log(`Updated client ${key}`);
-		}
-	} else {
-		if (clientsWaiting.length > 1) {
-			const [clientIdA, clientIdB] = clientsWaiting.splice(0, 2);
-			const playerA = clients[clientIdA];
-			const playerB = clients[clientIdB];
-			playerA.isPlaying = true;
-			playerB.isPlaying = true;
-			gameInProgress = true;
-			playerA.emit('startGame');
-			playerB.emit('startGame');
-		}
+	}
+	clientsWaiting = newClientsWaiting;
+	if (clientsWaiting.length > 1 && gamesInProgress < maxGames) {
+		let [clientIdA, clientIdB] = clientsWaiting.splice(0, 2);
+		const newGame = new Game(clientIdA, clientIdB);
+		games[newGame.gameId] = newGame;
 	}
 }, 40);
