@@ -14,11 +14,15 @@ socket.on("update", function (data) {
     requestAnimationFrame(frame);
 });
 
+let player = {
+    // todo player variables go here
+};
+
 socket.emit("joinGame", player);
 
 document.onkeydown = function (event) {
     event = event || window.event;
-    // todo handle key presses here
+    // todo handle key events here
     // socket.emit("keyPress", );
 };
 
@@ -31,6 +35,5 @@ window.onresize = function () {
 
 function frame() {
     context.clearRect(0, 0, displaySize, displaySize);
-    // todo draw frame
     context.fill();
 }
