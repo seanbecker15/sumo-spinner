@@ -10,6 +10,9 @@ let blockSize = displaySize / gridSize;
 display.style.width = (displaySize / 2) + "px";
 display.style.height = (displaySize / 2) + "px";
 
+let spinnerImage = new Image();
+spinnerImage.src = './spinner.svg';
+
 let spinners = {};
 socket.on("update", function (data) {
     spinners = data.spinners;
@@ -24,21 +27,21 @@ socket.emit("joinGame", player);
 
 document.onkeydown = function (event) {
     event = event || window.event;
-    switch(event.keyCode) {
-    case 83:
-        socket.emit('keyPress','w');
-        break;
-    case 87:
-        socket.emit('keyPress','s');
-        break;
-    case 65:
-        socket.emit('keyPress','a');
-        break;
-    case 68:
-        socket.emit('keyPress','d');
-        break;
-    default:
-        break;
+    switch (event.keyCode) {
+        case 83:
+            socket.emit('keyPress', 'w');
+            break;
+        case 87:
+            socket.emit('keyPress', 's');
+            break;
+        case 65:
+            socket.emit('keyPress', 'a');
+            break;
+        case 68:
+            socket.emit('keyPress', 'd');
+            break;
+        default:
+            break;
     }
 };
 
@@ -50,15 +53,13 @@ window.onresize = function () {
 };
 
 function drawSpinner(spinner) {
-    //todo change this to drawImage of the actual spinner
-    context.fillStyle = 'rgb(255,0,0)';
-    context.fillRect(spinner.x, spinner.y, 5, 5);
+    context.drawImage(spinnerImage, spinner.x - 100, spinner.y - 122, 200, 200);
 }
 
 function frame() {
     context.clearRect(0, 0, displaySize, displaySize);
     for (var key in spinners) {
-		drawSpinner(spinners[key]);
-	}
+        drawSpinner(spinners[key]);
+    }
     context.fill();
 }
