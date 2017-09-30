@@ -120,7 +120,10 @@ class Game {
     tick() {
         const resultA = this.spinnerA.move();
         const resultB = this.spinnerB.move();
-        this.detectCollision();
+		this.detectCollision();
+		if (!this.powerup && Math.random > 0.01) {
+			this.powerup = new Powerup();
+		}
         this.clientA.emit('update', { spinners: [this.spinnerA, this.spinnerB], powerup: this.powerup});
         this.clientB.emit('update', { spinners: [this.spinnerA, this.spinnerB], powerup: this.powerup});
         if (resultA === 'lose') {
@@ -128,7 +131,7 @@ class Game {
         }
         if (resultB === 'lose') {
             this.gameEnd('b');
-        }
+		}
     }
     distanceBetween(a = this.spinnerA, b = this.spinnerB) {
         return Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
