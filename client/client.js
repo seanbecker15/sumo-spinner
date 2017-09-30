@@ -111,9 +111,9 @@ function drawSpinner(spinner, image) {
     if (spinner.name) {
         console.log(spinner.name);
         context.font = '30px Comic Sans MS';
-        context.fillStyle = 'rgb(255,0,0)';
+        context.fillStyle = 'rgba(255, 255, 255, 0.5)';
         context.textAlign = 'center';
-        context.fillText(spinner.name, x, y + h + blockSize);
+        context.fillText(spinner.name, x, y + h);
     }
 }
 
