@@ -18,6 +18,12 @@ let spinnerRed = new Image();
 spinnerRed.src = './spinner-red.svg';
 let fire = new Image();
 fire.src = './fire.png';
+let eggplant = new Image();
+eggplant.src = './eggplant.png';
+let potato = new Image();
+potato.src = './potato.png';
+let wind = new Image();
+wind.src = './wind.png';
 
 let hits = {};
 let rotation = 0;
@@ -102,8 +108,8 @@ function drawSpinner(spinner, image) {
     context.save();
     let x = spinner.x * blockSize;
     let y = spinner.y * blockSize;
-    let w = 120 * blockSize;
-    let h = 120 * blockSize;
+    let w = spinner.radius * 2 * blockSize;
+    let h = spinner.radius * 2 * blockSize;
     context.translate(x, y);
     rotation += spinner.dtheta;
     context.rotate(rotation * Math.PI / 180);
@@ -126,8 +132,8 @@ function drawPowerup(powerup) {
                 image = wind;
                 break;
         }
-        let x = spinner.x * blockSize;
-        let y = spinner.y * blockSize;
+        let x = powerup.x * blockSize;
+        let y = powerup.y * blockSize;
         let w = 60 * blockSize;
         let h = 60 * blockSize;
         context.drawImage(image, x - w / 2, y - h / 2, w, h);

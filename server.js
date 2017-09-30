@@ -92,7 +92,7 @@ class Spinner {
 	applyPowerup(powerup) {
 		switch(powerup.type) {
 		case 'eggplant':
-			this.size++;
+			this.size += 0.25;
 			this.radius += 25;
 			break;
 		case 'wind':
@@ -121,11 +121,14 @@ class Game {
         const resultA = this.spinnerA.move();
         const resultB = this.spinnerB.move();
 		this.detectCollision();
-		if (!this.powerup && Math.random > 0.01) {
-			this.powerup = new Powerup();
+		if (!this.powerup && Math.random() > 0.995) {
+			const x = Math.random() * gridSize;
+			const y = Math.random() * gridSize;
+			const type = (Math.random() > 0.5) ? 'eggplant' : 'wind';
+			this.powerup = new Powerup(x, y, type);
 		}
         this.clientA.emit('update', { spinners: [this.spinnerA, this.spinnerB], powerup: this.powerup});
-        this.clientB.emit('update', { spinners: [this.spinnerA, this.spinnerB], powerup: this.powerup});
+        this.clientB.emit('update', { spinners: [this.spinnerB, this.spinnerA], powerup: this.powerup});
         if (resultA === 'lose') {
             this.gameEnd('a');
         }
@@ -144,10 +147,14 @@ class Game {
             this.clientB.emit('hit', { x, y });
             const tmpx = this.spinnerA.dx;
             const tmpy = this.spinnerA.dy;
-            this.spinnerA.dx = this.spinnerB.dx * this.spinnerB.dtheta / 5;
-            this.spinnerA.dy = this.spinnerB.dy * this.spinnerB.dtheta / 5;
-            this.spinnerB.dx = tmpx * this.spinnerA.dtheta / 5;
-            this.spinnerB.dy = tmpy * this.spinnerA.dtheta / 5;
+            this.spinnerA.dx = this.spinnerB.dx * this.spinnerB.size * this.spinnerB.dtheta / 5;
+            this.spinnerA.dy = this.spinnerB.dy * this.spinnerB.size * this.spinnerB.dtheta / 5;
+            this.spinnerB.dx = tmpx * this.spinnerA.size * this.spinnerA.dtheta / 5;
+			this.spinnerB.dy = tmpy * this.spinnerA.size * this.spinnerA.dtheta / 5;
+			if (this.spinnerA.dtheta > 2)
+				this.spinnerA.dtheta--;
+			if (this.spinnerB.dtheta > 2)
+				this.spinnerB.dtheta--;
 		}
 		if (this.powerup && this.distanceBetween(this.spinnerA, this.powerup) < this.spinnerA.radius) {
 			this.spinnerA.applyPowerup(this.powerup);
