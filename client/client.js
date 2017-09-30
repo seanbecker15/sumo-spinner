@@ -40,7 +40,7 @@ socket.on('win', function () {
     splash('👍😃🌝 You won! Waiting for new game...');
     setTimeout(function () {
         socket.emit('waitForGame');
-    }, 1000);
+    }, 2000);
 })
 
 socket.on('lose', function () {
@@ -49,7 +49,7 @@ socket.on('lose', function () {
     splash('👎⚰️🚒 :( Waiting for new game...');
     setTimeout(function () {
         socket.emit('waitForGame');
-    }, 1000);
+    }, 2000);
 })
 
 socket.on('hit', function (coordinates) {
