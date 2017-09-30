@@ -9,41 +9,55 @@ let blockSize = displaySize / gridSize;
 
 display.style.width = (displaySize / 2) + "px";
 display.style.height = (displaySize / 2) + "px";
+let playing = false;
+context.font = '50px arial'
+context.fillStyle = 'rgb(255,0,0)';
+context.fillText('waiting for game...', 500, 500);
+context.fill();
+
+let spinners = [];
+
 
 let spinnerImage = new Image();
 spinnerImage.src = './spinner.svg';
 
-let spinners = {};
+let spinners = [];
 socket.on("update", function (data) {
-    spinners = data.spinners;
+    spinners = data;
     requestAnimationFrame(frame);
+});
+
+socket.on('startGame', function(data) {
+    playing = true;
 });
 
 let player = {
 
 };
 
-socket.emit("joinGame", player);
+socket.emit("waitForGame", player);
 
 document.onkeydown = function (event) {
     event = event || window.event;
-    switch (event.keyCode) {
-        case 40:
-        case 83:
-            socket.emit('keyPress', 'w');
-            break;
-        case 38:
-        case 87:
-            socket.emit('keyPress', 's');
-            break;
-        case 65:
-        case 37:
-            socket.emit('keyPress', 'a');
-            break;
-        case 68:
-        case 39:
-            socket.emit('keyPress', 'd');
-            break;
+    switch(event.keyCode) {
+    case 38:
+    case 87:
+        socket.emit('keyPress','w');
+        break;
+    case 40:
+    case 83:
+        socket.emit('keyPress','s');
+        break;
+    case 37:
+    case 65:
+        socket.emit('keyPress','a');
+        break;
+    case 39:
+    case 68:
+        socket.emit('keyPress','d');
+        break;
+    default:
+        break;
     }
 };
 
@@ -60,8 +74,6 @@ function drawSpinner(spinner) {
 
 function frame() {
     context.clearRect(0, 0, displaySize, displaySize);
-    for (var key in spinners) {
-        drawSpinner(spinners[key]);
-    }
+    spinners.forEach((spinner) => drawSpinner(spinner));
     context.fill();
 }
