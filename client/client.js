@@ -44,8 +44,6 @@ document.onkeydown = function (event) {
         case 39:
             socket.emit('keyPress', 'd');
             break;
-        default:
-            break;
     }
 };
 
@@ -57,7 +55,7 @@ window.onresize = function () {
 };
 
 function drawSpinner(spinner) {
-    context.drawImage(spinnerImage, spinner.x - 100, spinner.y - 122, 200, 200);
+    context.drawImage(spinnerImage, spinner.x * blockSize, spinner.y * blockSize, 145 * blockSize, 135 * blockSize);
 }
 
 function frame() {
