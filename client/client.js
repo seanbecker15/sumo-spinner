@@ -156,6 +156,9 @@ function frame() {
             context.drawImage(fire, (hits.x - 40) * blockSize, (hits.y - 40) * blockSize, 80 * blockSize, 80 * blockSize);
         }
     }
+    if (powerup) {
+        drawPowerup(powerup);
+    }
     displaySplash();
     context.fill();
     requestAnimationFrame(frame);
