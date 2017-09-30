@@ -70,9 +70,9 @@ class Spinner {
             }
             if (this.directionRequest.includes('d')) {
                 if(this.dx >= 0)
-					this.dx -= 2;
+					this.dx += 2;
 				else
-					this.dx -= 4;
+					this.dx += 4;
             }
         }
         this.directionRequest = undefined;
