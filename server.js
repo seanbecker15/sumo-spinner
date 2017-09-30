@@ -51,26 +51,26 @@ class Spinner {
         if (this.directionRequest) {
             if (this.directionRequest.includes('w')) {
 				if(this.dy >= 0)
-					this.dy += 1.5;
+					this.dy += 1;
 				else
 					this.dy += 2.5;
 
             }
             if (this.directionRequest.includes('s')) {
 				if(this.dy <= 0)
-					this.dy -= 1.5;
+					this.dy -= 1;
 				else
 					this.dy -= 2.5;
             }
             if (this.directionRequest.includes('a')) {
 				if(this.dx <= 0)
-					this.dx -= 1.5;
+					this.dx -= 1;
 				else
 					this.dx -= 2.5;
             }
             if (this.directionRequest.includes('d')) {
                 if(this.dx >= 0)
-					this.dx += 1.5;
+					this.dx += 1;
 				else
 					this.dx += 2.5;
             }
