@@ -30,20 +30,10 @@ socket.on('startGame', function (data) {
     playing = true;
 });
 
-socket.on('gameOver', function () {
-    playing = false;
-    context.clearRect(0, 0, displaySize, displaySize);
-    context.font = '50px arial'
-    context.fillStyle = 'rgb(255,0,0)';
-    context.fillText('waiting for game...', 500 * blockSize, 500 * blockSize);
-    context.fill();
-    socket.emit('waitForGame');
-});
-
 socket.on('win', function() {
     playing = false;
     context.clearRect(0, 0, displaySize, displaySize);
-    context.font = '50px arial'
+    context.font = '50px arial';
     context.fillStyle = 'rgb(255,0,0)';
     context.fillText('You won! Wait to play again...', 500 * blockSize, 500 * blockSize);
     context.fill();
@@ -56,7 +46,7 @@ socket.on('win', function() {
 socket.on('lose', function() {
     playing = false;
     context.clearRect(0, 0, displaySize, displaySize);
-    context.font = '50px arial'
+    context.font = '50px arial';
     context.fillStyle = 'rgb(255,0,0)';
     context.fillText('You lost :( Wait to play again...', 500 * blockSize, 500 * blockSize);
     context.fill();
