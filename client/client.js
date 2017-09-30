@@ -135,3 +135,6 @@ function frame() {
     context.fill();
     requestAnimationFrame(frame);
 }
+
+const modal = document.getElementById('modal');
+modal.style.display = "block";
