@@ -18,15 +18,23 @@ let spinnerRed = new Image();
 spinnerRed.src = './spinner-red.svg';
 let fire = new Image();
 fire.src = './fire.png';
+let eggplant = new Image();
+eggplant.src = './eggplant.png';
+let potato = new Image();
+potato.src = './potato.png';
+let wind = new Image();
+wind.src = './wind.png';
 
 let hits = {};
 let rotation = 0;
 let spinners = [];
+let powerup;
 
 
 socket.on("update", function (data) {
     splashMessage = '';
-    spinners = data;
+    spinners = data.spinners;
+    powerup = data.powerup;
 });
 
 socket.on('startGame', function (data) {
@@ -92,14 +100,36 @@ function drawSpinner(spinner, image) {
     context.save();
     let x = spinner.x * blockSize;
     let y = spinner.y * blockSize;
-    let w = 120 * blockSize;
-    let h = 120 * blockSize;
+    let w = spinner.radius * 2 * blockSize;
+    let h = spinner.radius * 2 * blockSize;
     context.translate(x, y);
     rotation += spinner.dtheta;
     context.rotate(rotation * Math.PI / 180);
     context.translate(-x, -y);
     context.drawImage(image, x - w / 2, y - h / 2, w, h);
     context.restore();
+}
+
+function drawPowerup(powerup) {
+    if (powerup) {
+        let image;
+        switch (powerup.type) {
+            case 'eggplant':
+                image = eggplant;
+                break;
+            case 'potato':
+                image = potato;
+                break;
+            case 'wind':
+                image = wind;
+                break;
+        }
+        let x = powerup.x * blockSize;
+        let y = powerup.y * blockSize;
+        let w = 60 * blockSize;
+        let h = 60 * blockSize;
+        context.drawImage(image, x - w / 2, y - h / 2, w, h);
+    }
 }
 
 function splash(message) {
@@ -121,6 +151,9 @@ function frame() {
         if (hits.timer-- > 0) {
             context.drawImage(fire, (hits.x - 40) * blockSize, (hits.y - 40) * blockSize, 80 * blockSize, 80 * blockSize);
         }
+    }
+    if (powerup) {
+        drawPowerup(powerup);
     }
     displaySplash();
     context.fill();
