@@ -26,6 +26,14 @@ let clientsWaiting = [];
 let games = {};
 let clients = {};
 let maxGames = 5;
+class Powerup {
+	constructor(x = gridSize/2, y = gridSize/2, type='eggplant') {
+		this.x = x;
+		this.y = y;
+		this.type = type;
+	}
+}
+
 class Spinner {
     constructor(x = 0, y = 0, radius = 50) {
         this.x = x;
@@ -33,7 +41,8 @@ class Spinner {
         this.dx = 0;
         this.dy = 0;
         this.radius = radius;
-        this.dtheta = 5;
+		this.dtheta = 5;
+		this.size = 1;
     }
     move() {
         if (this.x < 0 || this.x > gridSize || this.y < 0 || this.y > gridSize) {
@@ -79,7 +88,18 @@ class Spinner {
     }
     input(key) {
         this.directionRequest = key;
-    }
+	}
+	applyPowerup(powerup) {
+		switch(powerup.type) {
+		case 'eggplant':
+			this.size++;
+			this.radius += 25;
+			break;
+		case 'wind':
+			this.dtheta = this.dtheta + 2;
+			break;
+		}
+	}
 }
 
 class Game {
@@ -92,7 +112,8 @@ class Game {
         this.clientB.isPlaying = true;
         this.clientB.game = this;
         this.spinnerA = new Spinner(200, 200);
-        this.spinnerB = new Spinner(gridSize - 200, gridSize - 200);
+		this.spinnerB = new Spinner(gridSize - 200, gridSize - 200);
+		this.powerup = new Powerup();
         gamesInProgress++;
         console.log(`Game ${this.gameId} starting...`);
     }
@@ -100,8 +121,8 @@ class Game {
         const resultA = this.spinnerA.move();
         const resultB = this.spinnerB.move();
         this.detectCollision();
-        this.clientA.emit('update', [this.spinnerA, this.spinnerB]);
-        this.clientB.emit('update', [this.spinnerB, this.spinnerA]);
+        this.clientA.emit('update', { spinners: [this.spinnerA, this.spinnerB], powerup: this.powerup});
+        this.clientB.emit('update', { spinners: [this.spinnerA, this.spinnerB], powerup: this.powerup});
         if (resultA === 'lose') {
             this.gameEnd('a');
         }
@@ -124,7 +145,15 @@ class Game {
             this.spinnerA.dy = this.spinnerB.dy * this.spinnerB.dtheta / 5;
             this.spinnerB.dx = tmpx * this.spinnerA.dtheta / 5;
             this.spinnerB.dy = tmpy * this.spinnerA.dtheta / 5;
-        }
+		}
+		if (this.powerup && this.distanceBetween(this.spinnerA, this.powerup) < this.spinnerA.radius) {
+			this.spinnerA.applyPowerup(this.powerup);
+			this.powerup = undefined;
+		}
+		if (this.powerup && this.distanceBetween(this.spinnerB, this.powerup) < this.spinnerB.radius) {
+			this.spinnerB.applyPowerup(this.powerup);
+			this.powerup = undefined;
+		}
     }
     input(clientId, key) {
         if (this.clientA.id === clientId) {

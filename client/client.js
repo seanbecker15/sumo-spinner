@@ -22,11 +22,13 @@ fire.src = './fire.png';
 let hits = {};
 let rotation = 0;
 let spinners = [];
+let powerup;
 
 
 socket.on("update", function (data) {
     splashMessage = '';
-    spinners = data;
+    spinners = data.spinners;
+    powerup = data.powerup;
 });
 
 socket.on('startGame', function (data) {
@@ -109,6 +111,28 @@ function drawSpinner(spinner, image) {
     context.drawImage(image, x - w / 2, y - h / 2, w, h);
     context.drawImage(image, x - w / 2, y - h / 2, w, h);
     context.restore();
+}
+
+function drawPowerup(powerup) {
+    if (powerup) {
+        let image;
+        switch (powerup.type) {
+            case 'eggplant':
+                image = eggplant;
+                break;
+            case 'potato':
+                image = potato;
+                break;
+            case 'wind':
+                image = wind;
+                break;
+        }
+        let x = spinner.x * blockSize;
+        let y = spinner.y * blockSize;
+        let w = 60 * blockSize;
+        let h = 60 * blockSize;
+        context.drawImage(image, x - w / 2, y - h / 2, w, h);
+    }
 }
 
 function splash(message) {
