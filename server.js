@@ -50,16 +50,16 @@ class Spinner {
 		}
 		switch (this.directionRequest) {
 		case 'w':
-			this.dy += 1;
+			this.dy += 2;
 			break;
 		case 's':
-			this.dy -= 1;
+			this.dy -= 2;
 			break;
 		case 'a':
-			this.dx -= 1;
+			this.dx -= 2;
 			break;
 		case 'd':
-			this.dx += 1;
+			this.dx += 2;
 			break;
 		default: break; 
 		}
