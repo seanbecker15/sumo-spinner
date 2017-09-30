@@ -18,13 +18,15 @@ context.fill();
 let spinnerImage = new Image();
 spinnerImage.src = './spinner.svg';
 
+let rotation = 0;
 let spinners = [];
+
 socket.on("update", function (data) {
     spinners = data;
     requestAnimationFrame(frame);
 });
 
-socket.on('startGame', function(data) {
+socket.on('startGame', function (data) {
     playing = true;
 });
 
@@ -36,25 +38,25 @@ socket.emit("waitForGame", player);
 
 document.onkeydown = function (event) {
     event = event || window.event;
-    switch(event.keyCode) {
-    case 38:
-    case 87:
-        socket.emit('keyPress','w');
-        break;
-    case 40:
-    case 83:
-        socket.emit('keyPress','s');
-        break;
-    case 37:
-    case 65:
-        socket.emit('keyPress','a');
-        break;
-    case 39:
-    case 68:
-        socket.emit('keyPress','d');
-        break;
-    default:
-        break;
+    switch (event.keyCode) {
+        case 38:
+        case 87:
+            socket.emit('keyPress', 'w');
+            break;
+        case 40:
+        case 83:
+            socket.emit('keyPress', 's');
+            break;
+        case 37:
+        case 65:
+            socket.emit('keyPress', 'a');
+            break;
+        case 39:
+        case 68:
+            socket.emit('keyPress', 'd');
+            break;
+        default:
+            break;
     }
 };
 
@@ -66,7 +68,12 @@ window.onresize = function () {
 };
 
 function drawSpinner(spinner) {
-    context.drawImage(spinnerImage, spinner.x * blockSize, spinner.y * blockSize, 145 * blockSize, 135 * blockSize);
+    context.save();
+    context.translate(spinner.x * blockSize, spinner.y * blockSize);
+    context.rotate(rotation++ * Math.PI / 64);
+    context.translate(-spinner.x * blockSize, -spinner.y * blockSize);
+    context.drawImage(spinnerImage, spinner.x * blockSize - 145 * blockSize / 2, spinner.y * blockSize - 135 * blockSize / 2, 145 * blockSize, 135 * blockSize);
+    context.restore();
 }
 
 function frame() {
