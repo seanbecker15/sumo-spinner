@@ -57,14 +57,6 @@ socket.on('hit', function (coordinates) {
     hits.y = coordinates.y;
 })
 
-window.onload = function () {
-    context.clearRect(0, 0, displaySize, displaySize);
-    splash('Waiting for game... ⏳');
-    socket.emit("waitForGame");
-    frame();
-};
-
-
 let keys = {};
 const converter = {
     38: 'w', 87: 'w',
@@ -111,7 +103,6 @@ function drawSpinner(spinner, image) {
 }
 
 function splash(message) {
-    console.log('splashing...');
     splashMessage = message;
 }
 
@@ -136,5 +127,11 @@ function frame() {
     requestAnimationFrame(frame);
 }
 
-const modal = document.getElementById('modal');
-modal.style.display = "block";
+function play() {
+    let modal = document.getElementById('modal');
+    modal.style.display = 'none';
+    context.clearRect(0, 0, displaySize, displaySize);
+    splash('Waiting for game... ⏳');
+    socket.emit("waitForGame");
+    frame();
+};

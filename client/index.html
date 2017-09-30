@@ -12,7 +12,15 @@
     <canvas class="display" id="canvas"></canvas>
     <div id="modal" class="modal">
         <div class="modal-content">
-            <p>Welcome to SumoSpinner!</p>
+            <form onSubmit="play();">
+                <h1>Asah, dude.</h1>
+                <hr>
+                <br>
+                <p>Name:</p>
+                <input type="text">
+                <br>
+                <input type="button" value="Play" onclick="play();" />
+            </form>
         </div>
     </div>
     <script src="/socket.io/socket.io.js" type="text/javascript"></script>
