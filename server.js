@@ -25,18 +25,25 @@ server.listen(port, function () {
 const gridSize = 40;
 let clients = {};
 let spinners = {};
+let gameInProgress = false;
+let clientsWaiting = [];
+let clientsPlaying = {};
 
 io.on("connection", function (client) {
     console.log("Client " + client.id + " has connected.");
     client.isConnected = true;
     client.isPlaying = false;
-    clients[client.id] = client;
+	clients[client.id] = client;
+	client.on('waitForGame', function() {
+		console.log(`Client ${client.id} has started waiting for a game`);
+		clientsWaiting.push(client.id);
+	});
     client.on("joinGame", function (spinner) {
         console.log("Client " + client.id + " has joined the game.");
 		client.isPlaying = true;
 		spinner.x = 0;
 		spinner.y = 0;
-		spinner.dx = 5; //todo set to 0, just set initially for testing
+		spinner.dx = 0;
 		spinner.dy = 0;
 		spinners[client.id] = spinner;
     });
@@ -88,12 +95,26 @@ function updateSpinner(spinner) {
 }
 
 setInterval(function () {
-	for (var key in spinners) {
-		updateSpinner(spinners[key]);
-		//console.log(`Updated spinner ${key}`);
-	}
-	for (var key in clients) {
-		clients[key].emit('update', {spinners});
-		//console.log(`Updated client ${key}`);
+	if (gameInProgress) {
+		for (var key in spinners) {
+			if (clients[key].isPlaying)
+				updateSpinner(spinners[key]);
+			//console.log(`Updated spinner ${key}`);
+		}
+		for (var key in clients) {
+			clients[key].emit('update', {spinners});
+			//console.log(`Updated client ${key}`);
+		}
+	} else {
+		if (clientsWaiting.length > 1) {
+			const [clientIdA, clientIdB] = clientsWaiting.splice(0, 2);
+			const playerA = clients[clientIdA];
+			const playerB = clients[clientIdB];
+			playerA.isPlaying = true;
+			playerB.isPlaying = true;
+			gameInProgress = true;
+			playerA.emit('startGame');
+			playerB.emit('startGame');
+		}
 	}
 }, 40);

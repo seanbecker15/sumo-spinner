@@ -9,18 +9,29 @@ let blockSize = displaySize / gridSize;
 
 display.style.width = (displaySize / 2) + "px";
 display.style.height = (displaySize / 2) + "px";
+let playing = false;
+context.font = '50px arial'
+context.fillStyle = 'rgb(255,0,0)';
+context.fillText('waiting for game...', 500, 500);
+context.fill();
 
 let spinners = {};
+
+
 socket.on("update", function (data) {
     spinners = data.spinners;
     requestAnimationFrame(frame);
+});
+
+socket.on('startGame', function(data) {
+    playing = true;
 });
 
 let player = {
 
 };
 
-socket.emit("joinGame", player);
+socket.emit("waitForGame", player);
 
 document.onkeydown = function (event) {
     event = event || window.event;
@@ -58,7 +69,7 @@ function drawSpinner(spinner) {
 function frame() {
     context.clearRect(0, 0, displaySize, displaySize);
     for (var key in spinners) {
-		drawSpinner(spinners[key]);
-	}
+        drawSpinner(spinners[key]);
+    }
     context.fill();
 }
