@@ -51,7 +51,7 @@ socket.on('lose', function () {
 
 window.onload = function() {
     context.clearRect(0, 0, displaySize, displaySize);
-    splash('Waiting for game...');
+    splash('Waiting for game... ⏳');
     socket.emit("waitForGame");
     frame();
 };
@@ -109,7 +109,7 @@ function splash(message) {
 }
 
 function displaySplash() {
-    context.font = '50px arial'
+    context.font = '50px Comic Sans MS';
     context.fillStyle = 'rgb(255,0,0)';
     context.textAlign = 'center';
     context.fillText(splashMessage, 500 * blockSize, 500 * blockSize);
