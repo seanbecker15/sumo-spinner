@@ -65,9 +65,9 @@ socket.emit("waitForGame");
 
 let keys = {};
 const converter = {
-    38: 'w', 87: 'w', 
-    40: 's', 83: 's', 
-    37: 'a', 65: 'a', 
+    38: 'w', 87: 'w',
+    40: 's', 83: 's',
+    37: 'a', 65: 'a',
     39: 'd', 68: 'd'
 }
 
@@ -100,8 +100,8 @@ function drawSpinner(spinner, image) {
     context.save();
     let x = spinner.x * blockSize;
     let y = spinner.y * blockSize;
-    let w = 170 * blockSize;
-    let h = 170 * blockSize;
+    let w = 120 * blockSize;
+    let h = 120 * blockSize;
     context.translate(x, y);
     rotation += spinner.dtheta;
     context.rotate(rotation * Math.PI / 180);
