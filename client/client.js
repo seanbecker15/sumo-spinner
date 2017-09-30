@@ -28,16 +28,20 @@ socket.emit("joinGame", player);
 document.onkeydown = function (event) {
     event = event || window.event;
     switch (event.keyCode) {
+        case 40:
         case 83:
             socket.emit('keyPress', 'w');
             break;
+        case 38:
         case 87:
             socket.emit('keyPress', 's');
             break;
         case 65:
+        case 37:
             socket.emit('keyPress', 'a');
             break;
         case 68:
+        case 39:
             socket.emit('keyPress', 'd');
             break;
         default:
