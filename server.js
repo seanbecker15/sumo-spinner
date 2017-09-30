@@ -44,12 +44,9 @@ class Spinner {
 		this.radius = radius;
 	}
 	move() {
-		if (this.x - this.radius < 0 
-			|| this.x + this.radius > gridSize 
-			|| this.y - this.radius < 0 
-			|| this.y + this.radius > gridSize) {
-				return 'lose';
-			}
+		if (this.x < 0 || this.x > gridSize || this.y < 0 || this.y > gridSize) {
+			return 'lose';
+		}
 		switch (this.directionRequest) {
 		case 'w':
 			this.dy += 1;
