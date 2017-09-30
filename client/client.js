@@ -48,6 +48,10 @@ socket.on('win', function() {
     context.fillText('You won! Wait to play again...', 500 * blockSize, 500 * blockSize);
     context.fill();
     setTimeout(function() {
+        context.font = '50px arial'
+        context.fillStyle = 'rgb(255,0,0)';
+        context.fillText('waiting for game...', 500, 500);
+        context.fill();
         socket.emit('waitForGame');
     }, 5000);
     // Idea: Winner of game is placed at beginning of queue
@@ -61,6 +65,10 @@ socket.on('lose', function() {
     context.fillText('You lost :( Wait to play again...', 500 * blockSize, 500 * blockSize);
     context.fill();
     setTimeout(function() {
+        context.font = '50px arial'
+        context.fillStyle = 'rgb(255,0,0)';
+        context.fillText('waiting for game...', 500, 500);
+        context.fill();
         socket.emit('waitForGame');
     }, 5000);
     // Idea: loser of game is pushed to end of queue
