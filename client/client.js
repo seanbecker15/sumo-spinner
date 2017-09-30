@@ -12,7 +12,8 @@ display.style.height = (displaySize / 2) + "px";
 let playing = false;
 context.font = '50px arial'
 context.fillStyle = 'rgb(255,0,0)';
-context.fillText('waiting for game...', 500, 500);
+context.textAlign = 'center';
+context.fillText('waiting for game...', 500 * blockSize, 500 * blockSize);
 context.fill();
 
 let spinnerBlue = new Image();
@@ -37,11 +38,12 @@ socket.on('win', function () {
     context.clearRect(0, 0, displaySize, displaySize);
     context.font = '50px arial';
     context.fillStyle = 'rgb(255,0,0)';
+    context.textAlign = 'center';
     context.fillText('You won! Wait to play again...', 500 * blockSize, 500 * blockSize);
     context.fill();
     setTimeout(function () {
         socket.emit('waitForGame');
-    }, 5000);
+    }, 1000);
     // Idea: Winner of game is placed at beginning of queue
 })
 
@@ -50,11 +52,12 @@ socket.on('lose', function () {
     context.clearRect(0, 0, displaySize, displaySize);
     context.font = '50px arial';
     context.fillStyle = 'rgb(255,0,0)';
+    context.textAlign = 'center';
     context.fillText('You lost :( Wait to play again...', 500 * blockSize, 500 * blockSize);
     context.fill();
     setTimeout(function () {
         socket.emit('waitForGame');
-    }, 5000);
+    }, 1000);
     // Idea: loser of game is pushed to end of queue
 })
 
