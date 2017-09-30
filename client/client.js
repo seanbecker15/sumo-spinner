@@ -77,8 +77,8 @@ function drawSpinner(spinner) {
     context.save();
     let x = spinner.x * blockSize;
     let y = spinner.y * blockSize;
-    let w = 150 * blockSize;
-    let h = 150 * blockSize;
+    let w = 200 * blockSize;
+    let h = 200 * blockSize;
     context.translate(x, y);
     rotation += 8;
     context.rotate(rotation * Math.PI / 180);
