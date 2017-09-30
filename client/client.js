@@ -116,7 +116,7 @@ function drawSpinner(spinner) {
     let w = 200 * blockSize;
     let h = 200 * blockSize;
     context.translate(x, y);
-    rotation += 8;
+    rotation += spinner.dtheta;
     context.rotate(rotation * Math.PI / 180);
     context.translate(-x, -y);
     context.drawImage(spinnerImage, x - w / 2, y - h / 2, w, h);
