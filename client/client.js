@@ -30,7 +30,7 @@ socket.on('startGame', function (data) {
     playing = true;
 });
 
-socket.on('gameOver', function() {
+socket.on('gameOver', function () {
     playing = false;
     context.clearRect(0, 0, displaySize, displaySize);
     context.font = '50px arial'
@@ -77,8 +77,8 @@ function drawSpinner(spinner) {
     context.save();
     let x = spinner.x * blockSize;
     let y = spinner.y * blockSize;
-    let w = 145 * blockSize;
-    let h = 135 * blockSize;
+    let w = 150 * blockSize;
+    let h = 150 * blockSize;
     context.translate(x, y);
     context.rotate(rotation++ * Math.PI / 64);
     context.translate(-x, -y);
