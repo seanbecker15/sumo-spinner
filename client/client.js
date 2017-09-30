@@ -34,7 +34,7 @@ socket.on('startGame', function (data) {
 socket.on('win', function () {
     playing = false;
     context.clearRect(0, 0, displaySize, displaySize);
-    splash('You won!');
+    splash('You won! Waiting for new game...');
     setTimeout(function () {
         socket.emit('waitForGame');
     }, 1000);
@@ -43,7 +43,7 @@ socket.on('win', function () {
 socket.on('lose', function () {
     playing = false;
     context.clearRect(0, 0, displaySize, displaySize);
-    splash('You lost :(');
+    splash('You lost :( Waiting for new game...');
     setTimeout(function () {
         socket.emit('waitForGame');
     }, 1000);
