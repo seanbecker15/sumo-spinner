@@ -107,7 +107,6 @@ function drawSpinner(spinner, image) {
     context.rotate(rotation * Math.PI / 180);
     context.translate(-x, -y);
     context.drawImage(image, x - w / 2, y - h / 2, w, h);
-    context.drawImage(image, x - w / 2, y - h / 2, w, h);
     context.restore();
 }
 
