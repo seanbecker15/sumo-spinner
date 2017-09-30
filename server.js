@@ -24,6 +24,7 @@ server.listen(port, function () {
 
 const gridSize = 40;
 let clients = {};
+let spinners = [];
 
 io.on("connection", function (client) {
     console.log("Client " + client.id + " has connected.");
@@ -34,9 +35,9 @@ io.on("connection", function (client) {
         console.log("Client " + client.id + " has joined the game.");
         client.isPlaying = true;
     });
-    client.on("keyPress", function (direction) {
+    client.on("keyPress", function (key) {
         if (client.isPlaying) {
-            // todo
+            client.directionRequest = key;
         }
     });
     client.on("disconnect", function () {
@@ -49,6 +50,17 @@ io.on("connection", function (client) {
     });
 });
 
+function updateSpinner(spinner) {
+	//Todo update info of given spinner
+	//calculate physics
+	//detect collisions
+}
+
 setInterval(function () {
-    // todo (think of this as the controller)
+	spinners.forEach((spinner) => {
+		updateSpinner(spinner);
+	});
+	clients.forEach((client) => {
+		client.emit('update', spinners);
+	});
 }, 40);
