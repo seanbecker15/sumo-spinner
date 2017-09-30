@@ -15,9 +15,6 @@ context.fillStyle = 'rgb(255,0,0)';
 context.fillText('waiting for game...', 500, 500);
 context.fill();
 
-let spinners = [];
-
-
 let spinnerImage = new Image();
 spinnerImage.src = './spinner.svg';
 
