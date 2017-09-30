@@ -43,7 +43,7 @@ io.on("connection", function (client) {
     client.on("keyPress", function (key) {
         if (client.isPlaying) {
 			spinners[client.id].directionRequest = key;
-			console.log(`Got a keypress, ${key} from client ${client.id}`);
+			//console.log(`Got a keypress, ${key} from client ${client.id}`);
         }
     });
     client.on("disconnect", function () {
@@ -76,10 +76,12 @@ function updateSpinner(spinner) {
 		break;
 	default: break; 
 	}
-	if (spinner.dy > 10)
-		spinner.dy = 10;
-	if (spinner.dx > 10)
-		spinner.dx = 10;
+	const total = Math.sqrt(Math.pow(spinner.dx, 2) + Math.pow(spinner.dy, 2));
+	console.log(total);
+	if (total > 10) {
+		spinner.dx /= total;
+		spinner.dy /= total;
+	}
 	spinner.directionRequest = undefined;
 	spinner.x += spinner.dx;
 	spinner.y += spinner.dy;
