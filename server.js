@@ -42,6 +42,7 @@ class Spinner {
         this.dx = 0;
         this.dy = 0;
         this.radius = radius;
+        this.dtheta = 5;
     }
     move() {
         if (this.x < 0 || this.x > gridSize || this.y < 0 || this.y > gridSize) {
@@ -62,6 +63,7 @@ class Spinner {
 			}
 		}
         this.directionRequest = undefined;
+        this.dtheta += 0.005;
         const speed = Math.sqrt(this.dx * this.dx + this.dy * this.dy);
         const terminalVelocity = 10;
         if (speed > terminalVelocity) {
@@ -74,7 +76,6 @@ class Spinner {
     input(key) {
         this.directionRequest = key;
     }
-
 }
 
 class Game {
@@ -94,6 +95,7 @@ class Game {
     tick() {
         const resultA = this.spinnerA.move();
         const resultB = this.spinnerB.move();
+        this.detectCollision();
         this.clientA.emit('update', [this.spinnerA, this.spinnerB]);
         this.clientB.emit('update', [this.spinnerB, this.spinnerA]);
         if (resultA === 'lose') {
@@ -101,6 +103,19 @@ class Game {
         }
         if (resultB === 'lose') {
             this.gameEnd('b');
+        }
+    }
+    distanceBetween(a = this.spinnerA, b = this.spinnerB) {
+        return Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
+    }
+    detectCollision() {
+        if (this.distanceBetween() < (this.spinnerA.radius + this.spinnerB.radius)) {
+            const tmpx = this.spinnerA.dx;
+            const tmpy = this.spinnerA.dy;
+            this.spinnerA.dx = this.spinnerB.dx * this.spinnerB.dtheta / 5;
+            this.spinnerA.dy = this.spinnerB.dy * this.spinnerB.dtheta / 5;
+            this.spinnerB.dx = tmpx * this.spinnerA.dtheta / 5;
+            this.spinnerB.dy = tmpy * this.spinnerA.dtheta / 5;
         }
     }
     input(clientId, key) {
