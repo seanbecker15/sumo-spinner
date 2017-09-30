@@ -30,16 +30,6 @@ socket.on('startGame', function (data) {
     playing = true;
 });
 
-socket.on('gameOver', function () {
-    playing = false;
-    context.clearRect(0, 0, displaySize, displaySize);
-    context.font = '50px arial'
-    context.fillStyle = 'rgb(255,0,0)';
-    context.fillText('waiting for game...', 500, 500);
-    context.fill();
-    socket.emit('waitForGame');
-});
-
 socket.on('win', function() {
     playing = false;
     context.clearRect(0, 0, displaySize, displaySize);
@@ -48,11 +38,7 @@ socket.on('win', function() {
     context.fillText('You won! Wait to play again...', 500, 500);
     context.fill();
     setTimeout(function() {
-        context.font = '50px arial'
-        context.fillStyle = 'rgb(255,0,0)';
-        context.fillText('waiting for game...', 500, 500);
-        context.fill();
-        socket.emit('waitForGame');
+    socket.emit('waitForGame');
     }, 5000);
     // Idea: Winner of game is placed at beginning of queue
 })
