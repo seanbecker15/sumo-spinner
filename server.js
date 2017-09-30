@@ -76,11 +76,11 @@ function updateSpinner(spinner) {
 		break;
 	default: break; 
 	}
-	const total = Math.sqrt(Math.pow(spinner.dx, 2) + Math.pow(spinner.dy, 2));
-	console.log(total);
-	if (total > 10) {
-		spinner.dx /= total;
-		spinner.dy /= total;
+	const speed = Math.sqrt(spinner.dx * spinner.dx + spinner.dy * spinner.dy);
+	const terminalVelocity = 10;
+	if (speed > terminalVelocity) {
+		spinner.dx *= terminalVelocity / speed;
+		spinner.dy *= terminalVelocity / speed;
 	}
 	spinner.directionRequest = undefined;
 	spinner.x += spinner.dx;
