@@ -26,7 +26,22 @@ let clientsWaiting = [];
 let clientsWaitingFour = [];
 let games = {};
 let clients = {};
+let scoreboard = [];
 let maxGames = 5;
+
+function addToLeaderboard(playerName, wins) {
+	console.log(`adding ${playerName} to the leaderboard with ${wins} wins`);
+	const element = scoreboard.find((obj) => {
+		return obj.playerName === playerName;
+	});
+	if (element) {
+		element.wins = wins;
+	} else {
+		scoreboard.push({ playerName, wins });
+	}
+	scoreboard.sort((a, b) => b.wins - a.wins);
+}
+
 class Powerup {
     constructor(x = gridSize / 2, y = gridSize / 2, type = 'eggplant') {
         this.x = x;
@@ -151,15 +166,16 @@ class Game {
             const y = Math.random() * gridSize;
             const type = (Math.random() > 0.5) ? 'eggplant' : 'wind';
             this.powerup = new Powerup(x, y, type);
-        }
+		}
+		const topfive = scoreboard.slice(0,5);
 		if(this.fourplayers) {
-			this.clientA.emit('update', { spinners: [this.spinnerA, this.spinnerB, this.spinnerC, this.spinnerD], powerup: this.powerup});
-			this.clientB.emit('update', { spinners: [this.spinnerB, this.spinnerA, this.spinnerC, this.spinnerD], powerup: this.powerup});
-			this.clientC.emit('update', { spinners: [this.spinnerC, this.spinnerA, this.spinnerB, this.spinnerD], powerup: this.powerup});
-			this.clientD.emit('update', { spinners: [this.spinnerD, this.spinnerA, this.spinnerB, this.spinnerC], powerup: this.powerup});
+			this.clientA.emit('update', { spinners: [this.spinnerA, this.spinnerB, this.spinnerC, this.spinnerD], powerup: this.powerup, topfive});
+			this.clientB.emit('update', { spinners: [this.spinnerB, this.spinnerA, this.spinnerC, this.spinnerD], powerup: this.powerup, topfive});
+			this.clientC.emit('update', { spinners: [this.spinnerC, this.spinnerA, this.spinnerB, this.spinnerD], powerup: this.powerup, topfive});
+			this.clientD.emit('update', { spinners: [this.spinnerD, this.spinnerA, this.spinnerB, this.spinnerC], powerup: this.powerup, topfive});
 		} else {
-			this.clientA.emit('update', { spinners: [this.spinnerA, this.spinnerB], powerup: this.powerup });
-			this.clientB.emit('update', { spinners: [this.spinnerB, this.spinnerA], powerup: this.powerup });
+			this.clientA.emit('update', { spinners: [this.spinnerA, this.spinnerB], powerup: this.powerup , topfive});
+			this.clientB.emit('update', { spinners: [this.spinnerB, this.spinnerA], powerup: this.powerup , topfive});
 		}
 		
         if (resultA === 'lose' && this.clientA.isPlaying) {
@@ -344,6 +360,8 @@ class Game {
 				this.clientB.isPlaying = false;
 				this.clientA.isPlaying = false;
 				this.clientB.emit('win');
+				this.clientB.wins = (this.clientB.wins) ? this.clientB.wins+1 : 1;
+				addToLeaderboard(this.clientB.name, this.clientB.wins);
 				this.clientA.emit('lose');
 				this.gameEnd();
 				return;
@@ -352,6 +370,8 @@ class Game {
 				this.clientA.isPlaying = false;
 				this.clientB.isPlaying = false;
 				this.clientA.emit('win');
+				this.clientA.wins = (this.clientA.wins) ? this.clientA.wins+1 : 1;
+				addToLeaderboard(this.clientA.name, this.clientA.wins);
 				this.clientB.emit('lose');
 				this.gameEnd();
 				return;
@@ -400,15 +420,19 @@ class Game {
 			if(this.clientA.isPlaying) {
 				this.clientA.isPlaying = false;
 				this.clientA.emit('win');
+				this.clientA.wins = (this.clientA.wins) ? this.clientA.wins+1 : 1;
 			} else if(this.clientB.isPlaying) {
 				this.clientB.isPlaying = false;
 				this.clientB.emit('win');
+				this.clientB.wins = (this.clientB.wins) ? this.clientB.wins+1 : 1;
 			} else if(this.clientC.isPlaying) {
 				this.clientC.isPlaying = false;
 				this.clientC.emit('win');
+				this.clientC.wins = (this.clientC.wins) ? this.clientC.wins+1 : 1;
 			} else {
 				this.clientD.isPlaying = false;
 				this.clientD.emit('win');
+				this.clientD.wins = (this.clientD.wins) ? this.clientD.wins+1 : 1;
 			}
 			this.gameEnd();
 		}

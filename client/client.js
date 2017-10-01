@@ -30,11 +30,12 @@ let rotation = 0;
 let spinners = [];
 let powerup;
 let name = '';
-
+let topfive;
 
 socket.on("update", function (data) {
     spinners = data.spinners;
     powerup = data.powerup;
+    topfive = data.topfive;
 });
 
 socket.on('startGame', function (data) {
@@ -119,6 +120,18 @@ function drawSpinner(spinner, image) {
     }
 }
 
+function drawTopFive() {
+    if (topfive && topfive.length > 0) {
+        context.font = '25px Comic Sans MS';
+        context.fillStyle = 'rgb(255,0,0)';
+        context.textAlign = 'start';
+        for (var i = 0; i < topfive.length; i++) {
+            const str = `${i+1}. ${topfive[i].playerName}:${topfive[i].wins}`;
+            context.fillText(str, 0, (i+1)*25);
+        }
+    }
+}
+
 function drawPowerup(powerup) {
     if (powerup) {
         let image;
@@ -169,6 +182,7 @@ function frame() {
         drawPowerup(powerup);
     }
     displaySplash();
+    drawTopFive();
     context.fill();
     requestAnimationFrame(frame);
 }
