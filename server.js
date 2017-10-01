@@ -109,10 +109,12 @@ class Game {
         this.gameId = guid();
         this.clientA = clients[clientIdA];
         this.clientA.isPlaying = true;
-        this.clientA.game = this;
+		this.clientA.game = this;
+		this.clientA.emit('startGame');
         this.clientB = clients[clientIdB];
         this.clientB.isPlaying = true;
 		this.clientB.game = this;
+		this.clientB.emit('startGame');
         this.spinnerA = new Spinner(200, 200, this.clientA.name);
 		this.spinnerB = new Spinner(gridSize - 200, gridSize - 200, this.clientB.name);
 		this.fourplayers = fourplayers;
@@ -123,9 +125,11 @@ class Game {
 			this.clientC = clients[clientIdC];
 			this.clientC.isPlaying = true;
 			this.clientC.game = this;
+			this.clientC.emit('startGame');
 			this.clientD = clients[clientIdD];
 			this.clientD.isPlaying = true;
 			this.clientD.game = this;
+			this.clientD.emit('startGame');
 			this.spinnerC = new Spinner(200, gridSize - 200, this.clientC.name);
 			this.spinnerD = new Spinner(gridSize - 200, 200, this.clientD.name);
 		}

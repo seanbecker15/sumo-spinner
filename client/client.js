@@ -33,12 +33,12 @@ let name = '';
 
 
 socket.on("update", function (data) {
-    splashMessage = '';
     spinners = data.spinners;
     powerup = data.powerup;
 });
 
 socket.on('startGame', function (data) {
+    splash('');
     playing = true;
 });
 
