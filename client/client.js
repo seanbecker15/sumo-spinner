@@ -168,13 +168,21 @@ function frame() {
     requestAnimationFrame(frame);
 }
 
-function play() {
+function play(gameType) {
     let modal = document.getElementById('modal');
     let input = document.getElementById('name');
     modal.style.display = 'none';
     context.clearRect(0, 0, displaySize, displaySize);
     splash('Waiting for game... ⏳');
     name = input.value;
-    socket.emit('waitForGame', name);
+    socket.emit(gameType, name);
     frame();
+};
+
+function play2() {
+    play('waitForGame');
+};
+
+function play4() {
+    play('waitForGame4');
 };
