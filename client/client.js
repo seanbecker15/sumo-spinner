@@ -45,9 +45,10 @@ socket.on('startGame', function (data) {
 socket.on('win', function () {
     playing = false;
     context.clearRect(0, 0, displaySize, displaySize);
+    const type = (spinners.length > 2) ? 'waitForGameFour' : 'waitForGame';
     splash('👍😃🌝 You won! Waiting for new game...');
     setTimeout(function () {
-        socket.emit('waitForGame', name);
+        socket.emit(type, name);
     }, 2000);
 })
 
@@ -55,8 +56,9 @@ socket.on('lose', function () {
     playing = false;
     context.clearRect(0, 0, displaySize, displaySize);
     splash('👎⚰️🚒 :( Waiting for new game...');
+    const type = (spinners.length > 2) ? 'waitForGameFour' : 'waitForGame';
     setTimeout(function () {
-        socket.emit('waitForGame', name);
+        socket.emit(type, name);
     }, 2000);
 })
 
@@ -110,7 +112,6 @@ function drawSpinner(spinner, image) {
     context.drawImage(image, x - w / 2, y - h / 2, w, h);
     context.restore();
     if (spinner.name) {
-        console.log(spinner.name);
         context.font = '30px Comic Sans MS';
         context.fillStyle = 'rgba(255, 255, 255, 0.5)';
         context.textAlign = 'center';
@@ -156,6 +157,10 @@ function frame() {
     if (spinners.length > 0) {
         drawSpinner(spinners[1], spinnerRed);
         drawSpinner(spinners[0], spinnerBlue);
+        if(spinners.length > 2) {
+            drawSpinner(spinners[2], spinnerRed);
+            drawSpinner(spinners[3], spinnerRed);
+        }
         if (hits.timer-- > 0) {
             context.drawImage(fire, (hits.x - 40) * blockSize, (hits.y - 40) * blockSize, 80 * blockSize, 80 * blockSize);
         }
@@ -184,5 +189,5 @@ function play2() {
 };
 
 function play4() {
-    play('waitForGame4');
+    play('waitForGameFour');
 };
