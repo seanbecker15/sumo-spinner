@@ -55,7 +55,7 @@ socket.on('lose', function () {
     splash('👎⚰️🚒 :( Waiting for new game...');
 });
 
-socket.on('gameover', function() {
+socket.on('gameover', function () {
     const type = (spinners.length > 2) ? 'waitForGameFour' : 'waitForGame';
     setTimeout(function () {
         socket.emit(type, name);
@@ -157,7 +157,7 @@ function frame() {
     if (spinners.length > 0) {
         drawSpinner(spinners[1], spinnerRed);
         drawSpinner(spinners[0], spinnerBlue);
-        if(spinners.length > 2) {
+        if (spinners.length > 2) {
             drawSpinner(spinners[2], spinnerRed);
             drawSpinner(spinners[3], spinnerRed);
         }
