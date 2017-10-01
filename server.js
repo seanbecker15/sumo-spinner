@@ -167,15 +167,14 @@ class Game {
             const type = (Math.random() > 0.5) ? 'eggplant' : 'wind';
             this.powerup = new Powerup(x, y, type);
 		}
-		const topfive = scoreboard.slice(0,5);
 		if(this.fourplayers) {
-			this.clientA.emit('update', { spinners: [this.spinnerA, this.spinnerB, this.spinnerC, this.spinnerD], powerup: this.powerup, topfive});
-			this.clientB.emit('update', { spinners: [this.spinnerB, this.spinnerA, this.spinnerC, this.spinnerD], powerup: this.powerup, topfive});
-			this.clientC.emit('update', { spinners: [this.spinnerC, this.spinnerA, this.spinnerB, this.spinnerD], powerup: this.powerup, topfive});
-			this.clientD.emit('update', { spinners: [this.spinnerD, this.spinnerA, this.spinnerB, this.spinnerC], powerup: this.powerup, topfive});
+			this.clientA.emit('update', { spinners: [this.spinnerA, this.spinnerB, this.spinnerC, this.spinnerD], powerup: this.powerup });
+			this.clientB.emit('update', { spinners: [this.spinnerB, this.spinnerA, this.spinnerC, this.spinnerD], powerup: this.powerup });
+			this.clientC.emit('update', { spinners: [this.spinnerC, this.spinnerA, this.spinnerB, this.spinnerD], powerup: this.powerup });
+			this.clientD.emit('update', { spinners: [this.spinnerD, this.spinnerA, this.spinnerB, this.spinnerC], powerup: this.powerup });
 		} else {
-			this.clientA.emit('update', { spinners: [this.spinnerA, this.spinnerB], powerup: this.powerup , topfive});
-			this.clientB.emit('update', { spinners: [this.spinnerB, this.spinnerA], powerup: this.powerup , topfive});
+			this.clientA.emit('update', { spinners: [this.spinnerA, this.spinnerB], powerup: this.powerup });
+			this.clientB.emit('update', { spinners: [this.spinnerB, this.spinnerA], powerup: this.powerup });
 		}
 		
         if (resultA === 'lose' && this.clientA.isPlaying) {
@@ -485,6 +484,14 @@ io.on("connection", function (client) {
 });
 
 setInterval(function () {
+	//Send stats to players
+	const topfive = scoreboard.slice(0,5);
+	const playersOnline = Object.keys(clients).map(k=>clients[k]).filter(el=>el.isConnected).reduce((acc,_)=>acc+1, 0);
+	for (var clientid in clients) {
+		const client = clients[clientid];
+		if (client.isConnected)
+			client.emit('stats', { topfive, playersOnline });
+	}
     for (var gameId in games) {
         games[gameId].tick(); //Updates game data, sends to clients
     }

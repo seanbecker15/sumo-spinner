@@ -31,11 +31,11 @@ let spinners = [];
 let powerup;
 let name = '';
 let topfive;
+let playersOnline = 1;
 
 socket.on("update", function (data) {
     spinners = data.spinners;
     powerup = data.powerup;
-    topfive = data.topfive;
 });
 
 socket.on('startGame', function (data) {
@@ -61,6 +61,11 @@ socket.on('gameover', function () {
     setTimeout(function () {
         socket.emit(type, name);
     }, 2000);
+});
+
+socket.on('stats', function(data) {
+    playersOnline = data.playersOnline;
+    topfive = data.topfive;
 });
 
 socket.on('hit', function (coordinates) {
@@ -120,14 +125,15 @@ function drawSpinner(spinner, image) {
     }
 }
 
-function drawTopFive() {
+function drawStats() {
+    context.font = '25px Comic Sans MS';
+    context.fillStyle = 'rgb(255,0,0)';
+    context.textAlign = 'start';
+    context.fillText(`${playersOnline} players online`, 0, 25);
     if (topfive && topfive.length > 0) {
-        context.font = '25px Comic Sans MS';
-        context.fillStyle = 'rgb(255,0,0)';
-        context.textAlign = 'start';
         for (var i = 0; i < topfive.length; i++) {
             const str = `${i+1}. ${topfive[i].playerName}:${topfive[i].wins}`;
-            context.fillText(str, 0, (i+1)*25);
+            context.fillText(str, 0, (i+2)*25);
         }
     }
 }
@@ -182,7 +188,7 @@ function frame() {
         drawPowerup(powerup);
     }
     displaySplash();
-    drawTopFive();
+    drawStats();
     context.fill();
     requestAnimationFrame(frame);
 }
@@ -195,7 +201,6 @@ function play(gameType) {
     splash('Waiting for game... ⏳');
     name = input.value.substring(0, 20);
     socket.emit(gameType, name);
-    frame();
 };
 
 function play2() {
@@ -205,3 +210,5 @@ function play2() {
 function play4() {
     play('waitForGameFour');
 };
+
+window.onload = frame;
