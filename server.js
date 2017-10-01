@@ -149,19 +149,13 @@ class Game {
             this.powerup = new Powerup(x, y, type);
         }
 		if(this.fourplayers) {
-			if (this.clientA.isPlaying)
-				this.clientA.emit('update', { spinners: [this.spinnerA, this.spinnerB, this.spinnerC, this.spinnerD], powerup: this.powerup});
-			if (this.clientB.isPlaying)
-				this.clientB.emit('update', { spinners: [this.spinnerB, this.spinnerA, this.spinnerC, this.spinnerD], powerup: this.powerup});
-			if (this.clientC.isPlaying)
-				this.clientC.emit('update', { spinners: [this.spinnerC, this.spinnerA, this.spinnerB, this.spinnerD], powerup: this.powerup});
-			if (this.clientD.isPlaying)
-				this.clientD.emit('update', { spinners: [this.spinnerD, this.spinnerA, this.spinnerB, this.spinnerC], powerup: this.powerup});
+			this.clientA.emit('update', { spinners: [this.spinnerA, this.spinnerB, this.spinnerC, this.spinnerD], powerup: this.powerup});
+			this.clientB.emit('update', { spinners: [this.spinnerB, this.spinnerA, this.spinnerC, this.spinnerD], powerup: this.powerup});
+			this.clientC.emit('update', { spinners: [this.spinnerC, this.spinnerA, this.spinnerB, this.spinnerD], powerup: this.powerup});
+			this.clientD.emit('update', { spinners: [this.spinnerD, this.spinnerA, this.spinnerB, this.spinnerC], powerup: this.powerup});
 		} else {
-			if (this.clientA.isPlaying)
-				this.clientA.emit('update', { spinners: [this.spinnerA, this.spinnerB], powerup: this.powerup });
-			if (this.clientA.isPlaying)
-				this.clientB.emit('update', { spinners: [this.spinnerB, this.spinnerA], powerup: this.powerup });
+			this.clientA.emit('update', { spinners: [this.spinnerA, this.spinnerB], powerup: this.powerup });
+			this.clientB.emit('update', { spinners: [this.spinnerB, this.spinnerA], powerup: this.powerup });
 		}
 		
         if (resultA === 'lose' && this.clientA.isPlaying) {
@@ -190,7 +184,11 @@ class Game {
             const x = (this.spinnerA.x + this.spinnerB.x) / 2;
             const y = (this.spinnerA.y + this.spinnerB.y) / 2;
             this.clientA.emit('hit', { x, y });
-            this.clientB.emit('hit', { x, y });
+			this.clientB.emit('hit', { x, y });
+			if (this.fourplayers) {
+				this.clientC.emit('hit', { x, y });
+				this.clientD.emit('hit', { x, y });
+			}
             const tmpx = this.spinnerA.dx;
             const tmpy = this.spinnerA.dy;
             this.spinnerA.dx = this.spinnerB.dx * this.spinnerB.size * this.spinnerB.dtheta / 5;
@@ -208,6 +206,10 @@ class Game {
 				const y = (this.spinnerA.y + this.spinnerC.y) / 2;
 				this.clientA.emit('hit', { x, y });
 				this.clientB.emit('hit', { x, y });
+				if (this.fourplayers) {
+					this.clientC.emit('hit', { x, y });
+					this.clientD.emit('hit', { x, y });
+				}
 				const tmpx = this.spinnerA.dx;
 				const tmpy = this.spinnerA.dy;
 				this.spinnerA.dx = this.spinnerC.dx * this.spinnerC.size * this.spinnerC.dtheta / 5;
@@ -224,6 +226,10 @@ class Game {
 				const y = (this.spinnerA.y + this.spinnerD.y) / 2;
 				this.clientA.emit('hit', { x, y });
 				this.clientB.emit('hit', { x, y });
+				if (this.fourplayers) {
+					this.clientC.emit('hit', { x, y });
+					this.clientD.emit('hit', { x, y });
+				}
 				const tmpx = this.spinnerA.dx;
 				const tmpy = this.spinnerA.dy;
 				this.spinnerA.dx = this.spinnerD.dx * this.spinnerD.size * this.spinnerD.dtheta / 5;
@@ -240,6 +246,10 @@ class Game {
 				const y = (this.spinnerB.y + this.spinnerC.y) / 2;
 				this.clientA.emit('hit', { x, y });
 				this.clientB.emit('hit', { x, y });
+				if (this.fourplayers) {
+					this.clientC.emit('hit', { x, y });
+					this.clientD.emit('hit', { x, y });
+				}
 				const tmpx = this.spinnerB.dx;
 				const tmpy = this.spinnerB.dy;
 				this.spinnerB.dx = this.spinnerC.dx * this.spinnerC.size * this.spinnerC.dtheta / 5;
@@ -256,6 +266,10 @@ class Game {
 				const y = (this.spinnerB.y + this.spinnerD.y) / 2;
 				this.clientA.emit('hit', { x, y });
 				this.clientB.emit('hit', { x, y });
+				if (this.fourplayers) {
+					this.clientC.emit('hit', { x, y });
+					this.clientD.emit('hit', { x, y });
+				}
 				const tmpx = this.spinnerB.dx;
 				const tmpy = this.spinnerB.dy;
 				this.spinnerB.dx = this.spinnerD.dx * this.spinnerD.size * this.spinnerD.dtheta / 5;
@@ -272,6 +286,10 @@ class Game {
 				const y = (this.spinnerC.y + this.spinnerD.y) / 2;
 				this.clientA.emit('hit', { x, y });
 				this.clientB.emit('hit', { x, y });
+				if (this.fourplayers) {
+					this.clientC.emit('hit', { x, y });
+					this.clientD.emit('hit', { x, y });
+				}
 				const tmpx = this.spinnerC.dx;
 				const tmpy = this.spinnerC.dy;
 				this.spinnerC.dx = this.spinnerD.dx * this.spinnerD.size * this.spinnerD.dtheta / 5;
@@ -397,16 +415,13 @@ class Game {
     gameEnd() {
 		console.log(`Game ${this.gameId} is over`);
 		gamesInProgress--;
+		this.clientA.emit('gameover');
+		this.clientB.emit('gameover');
+		if (this.fourplayers) {
+			this.clientC.emit('gameover');
+			this.clientD.emit('gameover');
+		}
 		delete games[this.gameId];
-        /*const winner = (result === 'a') ? this.clientB : this.clientA;
-        const loser = (result === 'a') ? this.clientA : this.clientB;
-DONE        console.log(`Game ${this.gameId} is over`);
-DONE        this.clientA.isPlaying = false;
-DONE        this.clientB.isPlaying = false;
-DONE        winner.emit('win');
-DONE        loser.emit('lose');
-        gamesInProgress--;
-        delete games[this.gameId];*/
     }
 }
 

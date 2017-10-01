@@ -47,20 +47,20 @@ socket.on('win', function () {
     context.clearRect(0, 0, displaySize, displaySize);
     const type = (spinners.length > 2) ? 'waitForGameFour' : 'waitForGame';
     splash('👍😃🌝 You won! Waiting for new game...');
-    setTimeout(function () {
-        socket.emit(type, name);
-    }, 2000);
-})
+});
 
 socket.on('lose', function () {
     playing = false;
     context.clearRect(0, 0, displaySize, displaySize);
     splash('👎⚰️🚒 :( Waiting for new game...');
+});
+
+socket.on('gameover', function() {
     const type = (spinners.length > 2) ? 'waitForGameFour' : 'waitForGame';
     setTimeout(function () {
         socket.emit(type, name);
     }, 2000);
-})
+});
 
 socket.on('hit', function (coordinates) {
     hits.timer = 50;
