@@ -105,7 +105,7 @@ class Spinner {
 }
 
 class Game {
-    constructor(clientIdA, clientIdB, fourplayers, clientIdC, clientIdD) {
+    constructor(clientIdA, clientIdB, fourplayers = false, clientIdC, clientIdD) {
         this.gameId = guid();
         this.clientA = clients[clientIdA];
         this.clientA.isPlaying = true;
@@ -149,27 +149,33 @@ class Game {
             this.powerup = new Powerup(x, y, type);
         }
 		if(this.fourplayers) {
-			this.clientA.emit('update', { spinners: [this.spinnerA, this.spinnerB, this.spinnerC, this.spinnerD], powerup: this.powerup});
-			this.clientB.emit('update', { spinners: [this.spinnerB, this.spinnerA, this.spinnerC, this.spinnerD], powerup: this.powerup});
-			this.clientC.emit('update', { spinners: [this.spinnerC, this.spinnerA, this.spinnerB, this.spinnerD], powerup: this.powerup});
-			this.clientD.emit('update', { spinners: [this.spinnerD, this.spinnerA, this.spinnerB, this.spinnerB], powerup: this.powerup});
+			if (this.clientA.isPlaying)
+				this.clientA.emit('update', { spinners: [this.spinnerA, this.spinnerB, this.spinnerC, this.spinnerD], powerup: this.powerup});
+			if (this.clientB.isPlaying)
+				this.clientB.emit('update', { spinners: [this.spinnerB, this.spinnerA, this.spinnerC, this.spinnerD], powerup: this.powerup});
+			if (this.clientC.isPlaying)
+				this.clientC.emit('update', { spinners: [this.spinnerC, this.spinnerA, this.spinnerB, this.spinnerD], powerup: this.powerup});
+			if (this.clientD.isPlaying)
+				this.clientD.emit('update', { spinners: [this.spinnerD, this.spinnerA, this.spinnerB, this.spinnerC], powerup: this.powerup});
 		} else {
-			this.clientA.emit('update', { spinners: [this.spinnerA, this.spinnerB], powerup: this.powerup });
-			this.clientB.emit('update', { spinners: [this.spinnerB, this.spinnerA], powerup: this.powerup });
+			if (this.clientA.isPlaying)
+				this.clientA.emit('update', { spinners: [this.spinnerA, this.spinnerB], powerup: this.powerup });
+			if (this.clientA.isPlaying)
+				this.clientB.emit('update', { spinners: [this.spinnerB, this.spinnerA], powerup: this.powerup });
 		}
 		
-        if (resultA === 'lose') {
-            this.playerLeave('a');
+        if (resultA === 'lose' && this.clientA.isPlaying) {
+            this.playerLeave(this.clientA.id);
         }
-        if (resultB === 'lose') {
-            this.playerLeave('b');
+        if (resultB === 'lose' && this.clientB.isPlaying) {
+            this.playerLeave(this.clientB.id);
 		}
 		if(this.fourplayers) {
-			if (resultC === 'lose') {
-				this.playerLeave('c');
+			if (resultC === 'lose' && this.clientC.isPlaying) {
+				this.playerLeave(this.clientC.id);
 			}
-			if (resultD === 'lose') {
-				this.playerLeave('d');
+			if (resultD === 'lose' && this.clientD.isPlaying) {
+				this.playerLeave(this.clientD.id);
 			}
 		}
 	}
@@ -195,7 +201,89 @@ class Game {
                 this.spinnerA.dtheta--;
             if (this.spinnerB.dtheta > 2)
                 this.spinnerB.dtheta--;
-        }
+		}
+		if (this.fourplayers) {
+			if (this.distanceBetween(this.spinnerA, this.spinnerC) < (this.spinnerA.radius + this.spinnerC.radius)) {
+				const x = (this.spinnerA.x + this.spinnerC.x) / 2;
+				const y = (this.spinnerA.y + this.spinnerC.y) / 2;
+				this.clientA.emit('hit', { x, y });
+				this.clientB.emit('hit', { x, y });
+				const tmpx = this.spinnerA.dx;
+				const tmpy = this.spinnerA.dy;
+				this.spinnerA.dx = this.spinnerC.dx * this.spinnerC.size * this.spinnerC.dtheta / 5;
+				this.spinnerA.dy = this.spinnerC.dy * this.spinnerC.size * this.spinnerC.dtheta / 5;
+				this.spinnerC.dx = tmpx * this.spinnerA.size * this.spinnerA.dtheta / 5;
+				this.spinnerC.dy = tmpy * this.spinnerA.size * this.spinnerA.dtheta / 5;
+				if (this.spinnerA.dtheta > 2)
+					this.spinnerA.dtheta--;
+				if (this.spinnerC.dtheta > 2)
+					this.spinnerC.dtheta--;
+			}
+			if (this.distanceBetween(this.spinnerA, this.spinnerD) < (this.spinnerA.radius + this.spinnerD.radius)) {
+				const x = (this.spinnerA.x + this.spinnerD.x) / 2;
+				const y = (this.spinnerA.y + this.spinnerD.y) / 2;
+				this.clientA.emit('hit', { x, y });
+				this.clientB.emit('hit', { x, y });
+				const tmpx = this.spinnerA.dx;
+				const tmpy = this.spinnerA.dy;
+				this.spinnerA.dx = this.spinnerD.dx * this.spinnerD.size * this.spinnerD.dtheta / 5;
+				this.spinnerA.dy = this.spinnerD.dy * this.spinnerD.size * this.spinnerD.dtheta / 5;
+				this.spinnerD.dx = tmpx * this.spinnerA.size * this.spinnerA.dtheta / 5;
+				this.spinnerD.dy = tmpy * this.spinnerA.size * this.spinnerA.dtheta / 5;
+				if (this.spinnerA.dtheta > 2)
+					this.spinnerA.dtheta--;
+				if (this.spinnerD.dtheta > 2)
+					this.spinnerD.dtheta--;
+			}
+			if (this.distanceBetween(this.spinnerB, this.spinnerC) < (this.spinnerB.radius + this.spinnerC.radius)) {
+				const x = (this.spinnerB.x + this.spinnerC.x) / 2;
+				const y = (this.spinnerB.y + this.spinnerC.y) / 2;
+				this.clientA.emit('hit', { x, y });
+				this.clientB.emit('hit', { x, y });
+				const tmpx = this.spinnerB.dx;
+				const tmpy = this.spinnerB.dy;
+				this.spinnerB.dx = this.spinnerC.dx * this.spinnerC.size * this.spinnerC.dtheta / 5;
+				this.spinnerB.dy = this.spinnerC.dy * this.spinnerC.size * this.spinnerC.dtheta / 5;
+				this.spinnerC.dx = tmpx * this.spinnerB.size * this.spinnerB.dtheta / 5;
+				this.spinnerC.dy = tmpy * this.spinnerB.size * this.spinnerB.dtheta / 5;
+				if (this.spinnerB.dtheta > 2)
+					this.spinnerB.dtheta--;
+				if (this.spinnerC.dtheta > 2)
+					this.spinnerC.dtheta--;
+			}
+			if (this.distanceBetween(this.spinnerB, this.spinnerD) < (this.spinnerB.radius + this.spinnerD.radius)) {
+				const x = (this.spinnerB.x + this.spinnerD.x) / 2;
+				const y = (this.spinnerB.y + this.spinnerD.y) / 2;
+				this.clientA.emit('hit', { x, y });
+				this.clientB.emit('hit', { x, y });
+				const tmpx = this.spinnerB.dx;
+				const tmpy = this.spinnerB.dy;
+				this.spinnerB.dx = this.spinnerD.dx * this.spinnerD.size * this.spinnerD.dtheta / 5;
+				this.spinnerB.dy = this.spinnerD.dy * this.spinnerD.size * this.spinnerD.dtheta / 5;
+				this.spinnerD.dx = tmpx * this.spinnerB.size * this.spinnerB.dtheta / 5;
+				this.spinnerD.dy = tmpy * this.spinnerB.size * this.spinnerB.dtheta / 5;
+				if (this.spinnerB.dtheta > 2)
+					this.spinnerB.dtheta--;
+				if (this.spinnerD.dtheta > 2)
+					this.spinnerD.dtheta--;
+			}
+			if (this.distanceBetween(this.spinnerC, this.spinnerD) < (this.spinnerC.radius + this.spinnerD.radius)) {
+				const x = (this.spinnerC.x + this.spinnerD.x) / 2;
+				const y = (this.spinnerC.y + this.spinnerD.y) / 2;
+				this.clientA.emit('hit', { x, y });
+				this.clientB.emit('hit', { x, y });
+				const tmpx = this.spinnerC.dx;
+				const tmpy = this.spinnerC.dy;
+				this.spinnerC.dx = this.spinnerD.dx * this.spinnerD.size * this.spinnerD.dtheta / 5;
+				this.spinnerC.dy = this.spinnerD.dy * this.spinnerD.size * this.spinnerD.dtheta / 5;
+				this.spinnerD.dx = tmpx * this.spinnerC.size * this.spinnerC.dtheta / 5;
+				this.spinnerD.dy = tmpy * this.spinnerC.size * this.spinnerC.dtheta / 5;
+				if (this.spinnerC.dtheta > 2)
+					this.spinnerC.dtheta--;
+				if (this.spinnerD.dtheta > 2)
+					this.spinnerD.dtheta--;
+			}
+		}
         if (this.powerup && this.distanceBetween(this.spinnerA, this.powerup) < this.spinnerA.radius) {
             this.spinnerA.applyPowerup(this.powerup);
             this.powerup = undefined;
@@ -203,7 +291,17 @@ class Game {
         if (this.powerup && this.distanceBetween(this.spinnerB, this.powerup) < this.spinnerB.radius) {
             this.spinnerB.applyPowerup(this.powerup);
             this.powerup = undefined;
-        }
+		}
+		if (this.fourplayers) {
+			if (this.powerup && this.distanceBetween(this.spinnerC, this.powerup) < this.spinnerC.radius) {
+				this.spinnerC.applyPowerup(this.powerup);
+				this.powerup = undefined;
+			}
+			if (this.powerup && this.distanceBetween(this.spinnerD, this.powerup) < this.spinnerD.radius) {
+				this.spinnerD.applyPowerup(this.powerup);
+				this.powerup = undefined;
+			}
+		}
     }
     input(clientId, key) {
         if (this.clientA.id === clientId) {
@@ -224,6 +322,7 @@ class Game {
 				this.clientB.isPlaying = false;
 				this.clientA.isPlaying = false;
 				this.clientB.emit('win');
+				this.clientA.emit('lose');
 				this.gameEnd();
 				return;
 			}
@@ -231,7 +330,8 @@ class Game {
 				this.clientA.isPlaying = false;
 				this.clientB.isPlaying = false;
 				this.clientA.emit('win');
-				gameEnd();
+				this.clientB.emit('lose');
+				this.gameEnd();
 				return;
 			}
 		}
@@ -239,39 +339,42 @@ class Game {
 		switch(clientId) {
 			case this.clientA.id:
 				clientLetter = 'a';
-				this.clientA.dx = 0;
-				this.clientA.dy = 0;
-				this.clientA.x = -500;
-				this.clientA.y = -500;
+				this.spinnerA.dx = 0;
+				this.spinnerA.dy = 0;
+				this.spinnerA.x = -500;
+				this.spinnerA.y = -500;
 				this.clientA.emit('lose');
 				this.clientA.isPlaying = false;
+				break;
 			case this.clientB.id:
 				clientLetter = 'b';
-				this.clientB.dx = 0;
-				this.clientB.dy = 0;
-				this.clientB.x = -500;
-				this.clientB.y = -500;
+				this.spinnerB.dx = 0;
+				this.spinnerB.dy = 0;
+				this.spinnerB.x = -500;
+				this.spinnerB.y = -500;
 				this.clientB.emit('lose');
 				this.clientB.isPlaying = false;
+				break;
 			case this.clientC.id:
 				clientLetter = 'c';
-				this.clientC.dx = 0;
-				this.clientC.dy = 0;
-				this.clientC.x = -500;
-				this.clientC.y = -500;
+				this.spinnerC.dx = 0;
+				this.spinnerC.dy = 0;
+				this.spinnerC.x = -500;
+				this.spinnerC.y = -500;
 				this.clientC.emit('lose');
 				this.clientC.isPlaying = false;
-			default:
+				break;
+			case this.clientD.id:
 				clientLetter = 'd';
-				this.clientD.dx = 0;
-				this.clientD.dy = 0;
-				this.clientD.x = -500;
-				this.clientD.y = -500;
+				this.spinnerD.dx = 0;
+				this.spinnerD.dy = 0;
+				this.spinnerD.x = -500;
+				this.spinnerD.y = -500;
 				this.clientD.emit('lose');
 				this.clientD.isPlaying = false;
 		}
 		// someone should win, game will end
-		if(this.playersleft === 2) {
+		if(this.playersRemaining === 2) {
 			if(this.clientA.isPlaying) {
 				this.clientA.isPlaying = false;
 				this.clientA.emit('win');
@@ -285,9 +388,9 @@ class Game {
 				this.clientD.isPlaying = false;
 				this.clientD.emit('win');
 			}
-			gameEnd();
+			this.gameEnd();
 		}
-		this.playersleft--;
+		this.playersRemaining--;
 	}
 	
 	// Everybody besides winner loses.
@@ -319,7 +422,7 @@ io.on("connection", function (client) {
 	});
 	client.on('waitForGameFour', function(name) {
 		client.name = name;
-        console.log(`Client ${client.id} with name ${client.name} has started waiting for a game`);
+        console.log(`Client ${client.id} with name ${client.name} has started waiting for a 4-player game`);
         clientsWaitingFour.push(client.id);
 	});
     client.on("keyPress", function (key) {
@@ -365,7 +468,7 @@ setInterval(function () {
 	clientsWaiting = newClientsWaiting;
 	if (clientsWaiting.length > 1 && gamesInProgress < maxGames) {
 		let [clientIdA, clientIdB] = clientsWaiting.splice(0, 2);
-		const newGame = new Game(clientIdA, clientIdB);
+		const newGame = new Game(clientIdA, clientIdB, false);
 		games[newGame.gameId] = newGame;
 	} 
 }, 20);
