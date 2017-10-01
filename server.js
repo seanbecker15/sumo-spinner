@@ -32,9 +32,11 @@ server.listen(port, function () {
 const gridSize = 1000;
 let gamesInProgress = 0;
 let clientsWaiting = [];
+let clientsWaitingFour = [];
 let games = {};
 let clients = {};
 let maxGames = 5;
+
 class Spinner {
     constructor(x = 0, y = 0, radius = 50) {
         this.x = x;
@@ -92,35 +94,72 @@ class Spinner {
 }
 
 class Game {
-    constructor(clientIdA, clientIdB) {
+    constructor(clientIdA, clientIdB, fourplayers, clientIdC, clientIdD) {
         this.gameId = guid();
         this.clientA = clients[clientIdA];
         this.clientA.isPlaying = true;
         this.clientA.game = this;
         this.clientB = clients[clientIdB];
         this.clientB.isPlaying = true;
-        this.clientB.game = this;
+		this.clientB.game = this;
         this.spinnerA = new Spinner(200, 200);
-        this.spinnerB = new Spinner(gridSize - 200, gridSize - 200);
+		this.spinnerB = new Spinner(gridSize - 200, gridSize - 200);
+		this.fourplayers = fourplayers;
+		this.playersRemaining = 2;
+		if(this.fourplayers) {
+			this.playersRemaining = 4;
+			this.clientC = clients[clientIdC];
+			this.clientC.isPlaying = true;
+			this.clientC.game = this;
+			this.clientD = clients[clientIdD];
+			this.clientD.isPlaying = true;
+			this.clientD.game = this;
+			this.spinnerC = new Spinner(200, gridSize - 200);
+			this.spinnerD = new Spinner(gridSize - 200, 200);
+		}
         gamesInProgress++;
         console.log(`Game ${this.gameId} starting...`);
-    }
+	}
     tick() {
         const resultA = this.spinnerA.move();
-        const resultB = this.spinnerB.move();
-        this.detectCollision();
-        this.clientA.emit('update', [this.spinnerA, this.spinnerB]);
-        this.clientB.emit('update', [this.spinnerB, this.spinnerA]);
+		const resultB = this.spinnerB.move();
+		let resultC;
+		let resultD;
+		if(this.fourplayers) {
+			resultC = this.spinnerC.move();
+			resultD = this.spinnerD.move();
+		}
+		this.detectCollision();
+		if(this.fourplayers) {
+			this.clientA.emit('update', [this.spinnerA, this.spinnerB, this.spinnerC, this.spinnerD]);
+			this.clientB.emit('update', [this.spinnerB, this.spinnerA, this.spinnerC, this.spinnerD]);
+			this.clientC.emit('update', [this.spinnerC, this.spinnerA, this.spinnerB, this.spinnerD]);
+			this.clientD.emit('update', [this.spinnerD, this.spinnerA, this.spinnerB, this.spinnerB]);
+		} else {
+			this.clientA.emit('update', [this.spinnerA, this.spinnerB]);
+			this.clientB.emit('update', [this.spinnerB, this.spinnerA]);
+		}
         if (resultA === 'lose') {
-            this.gameEnd('a');
+            this.playerLeave('a');
         }
         if (resultB === 'lose') {
-            this.gameEnd('b');
-        }
-    }
+            this.playerLeave('b');
+		}
+		if(this.fourplayers) {
+			if (resultC === 'lose') {
+				this.playerLeave('c');
+			}
+			if (resultD === 'lose') {
+				this.playerLeave('d');
+			}
+		}
+	}
+	
+	// Have to revise this for C and D
     distanceBetween(a = this.spinnerA, b = this.spinnerB) {
         return Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
-    }
+	}
+
     detectCollision() {
         if (this.distanceBetween() < (this.spinnerA.radius + this.spinnerB.radius)) {
 			const x = (this.spinnerA.x + this.spinnerB.x) / 2;
@@ -140,26 +179,100 @@ class Game {
             this.spinnerA.input(key);
         } else if (this.clientB.id === clientId) {
             this.spinnerB.input(key);
-        }
+        } else if (this.fourplayers && this.clientC.id === clientId) {
+			this.spinnerC.input(key);
+		} else if (this.fourplayers && this.clientD.id === clientId) {
+			this.spinnerD.input(key);
+		}
     }
     playerLeave(clientId) {
-        console.log(`Client ${clientId} has left game ${this.gameId}`);
-        if (this.clientA.id === clientId) {
-            this.gameEnd('a');
-        } else {
-            this.gameEnd('b');
-        }
-    }
-    gameEnd(result) {
-        const winner = (result === 'a') ? this.clientB : this.clientA;
+		console.log(`Client ${clientId} has left game ${this.gameId}`);
+		if(!this.fourplayers) {
+			// Client B wins
+			if (this.clientA.id === clientId) {
+				this.clientB.isPlaying = false;
+				this.clientA.isPlaying = false;
+				this.clientB.emit('win');
+				this.gameEnd();
+				return;
+			}
+			else if (this.clientB.id === clientId) {
+				this.clientA.isPlaying = false;
+				this.clientB.isPlaying = false;
+				this.clientA.emit('win');
+				gameEnd();
+				return;
+			}
+		}
+		var clientLetter;
+		switch(clientId) {
+			case this.clientA.id:
+				clientLetter = 'a';
+				this.clientA.dx = 0;
+				this.clientA.dy = 0;
+				this.clientA.x = -500;
+				this.clientA.y = -500;
+				this.clientA.emit('lose');
+				this.clientA.isPlaying = false;
+			case this.clientB.id:
+				clientLetter = 'b';
+				this.clientB.dx = 0;
+				this.clientB.dy = 0;
+				this.clientB.x = -500;
+				this.clientB.y = -500;
+				this.clientB.emit('lose');
+				this.clientB.isPlaying = false;
+			case this.clientC.id:
+				clientLetter = 'c';
+				this.clientC.dx = 0;
+				this.clientC.dy = 0;
+				this.clientC.x = -500;
+				this.clientC.y = -500;
+				this.clientC.emit('lose');
+				this.clientC.isPlaying = false;
+			default:
+				clientLetter = 'd';
+				this.clientD.dx = 0;
+				this.clientD.dy = 0;
+				this.clientD.x = -500;
+				this.clientD.y = -500;
+				this.clientD.emit('lose');
+				this.clientD.isPlaying = false;
+		}
+		// someone should win, game will end
+		if(this.playersleft === 2) {
+			if(this.clientA.isPlaying) {
+				this.clientA.isPlaying = false;
+				this.clientA.emit('win');
+			} else if(this.clientB.isPlaying) {
+				this.clientB.isPlaying = false;
+				this.clientB.emit('win');
+			} else if(this.clientC.isPlaying) {
+				this.clientC.isPlaying = false;
+				this.clientC.emit('win');
+			} else {
+				this.clientD.isPlaying = false;
+				this.clientD.emit('win');
+			}
+			gameEnd();
+		}
+		this.playersleft--;
+	}
+	
+	// Everybody besides winner loses.
+    gameEnd() {
+		console.log(`Game ${this.gameId} is over`);
+		gamesInProgress--;
+		delete games[this.gameId];
+        /*const winner = (result === 'a') ? this.clientB : this.clientA;
         const loser = (result === 'a') ? this.clientA : this.clientB;
-        console.log(`Game ${this.gameId} is over`);
-        this.clientA.isPlaying = false;
-        this.clientB.isPlaying = false;
-        winner.emit('win');
-        loser.emit('lose');
+DONE        console.log(`Game ${this.gameId} is over`);
+DONE        this.clientA.isPlaying = false;
+DONE        this.clientB.isPlaying = false;
+DONE        winner.emit('win');
+DONE        loser.emit('lose');
         gamesInProgress--;
-        delete games[this.gameId];
+        delete games[this.gameId];*/
     }
 }
 
@@ -192,17 +305,30 @@ setInterval(function () {
     for (var gameId in games) {
         games[gameId].tick(); //Updates game data, sends to clients
     }
-    let newClientsWaiting = [];
-    for (var clientId of clientsWaiting) {
-        const client = clients[clientId];
-        if (client.isConnected && !client.isPlaying) {
-            newClientsWaiting.push(clientId);
-        }
-    }
-    clientsWaiting = newClientsWaiting;
-    if (clientsWaiting.length > 1 && gamesInProgress < maxGames) {
-        let [clientIdA, clientIdB] = clientsWaiting.splice(0, 2);
-        const newGame = new Game(clientIdA, clientIdB);
-        games[newGame.gameId] = newGame;
-    }
+	let newClientsWaiting = [];
+	for (var clientId of clientsWaitingFour) {
+		const client = clients[clientId];
+		if (client.isConnected && !client.isPlaying) {
+			newClientsWaiting.push(clientId);
+		}
+	}
+	clientsWaitingFour = newClientsWaiting;
+	if (clientsWaitingFour.length > 3 && gamesInProgress < maxGames) {
+		let [clientIdA, clientIdB, clientIdC, clientIdD] = clientsWaitingFour.splice(0, 4);
+		const newGame = new Game(clientIdA, clientIdB, true, clientIdC, clientIdD);
+		games[newGame.gameId] = newGame;
+	}
+	newClientsWaiting = [];
+	for (var clientId of clientsWaiting) {
+		const client = clients[clientId];
+		if (client.isConnected && !client.isPlaying) {
+			newClientsWaiting.push(clientId);
+		}
+	}
+	clientsWaiting = newClientsWaiting;
+	if (clientsWaiting.length > 1 && gamesInProgress < maxGames) {
+		let [clientIdA, clientIdB] = clientsWaiting.splice(0, 2);
+		const newGame = new Game(clientIdA, clientIdB);
+		games[newGame.gameId] = newGame;
+	} 
 }, 20);

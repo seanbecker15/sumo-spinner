@@ -129,6 +129,10 @@ function frame() {
     if (spinners.length > 0) {
         drawSpinner(spinners[1], spinnerRed);
         drawSpinner(spinners[0], spinnerBlue);
+        if(spinners.length > 2) {
+            drawSpinner(spinners[2], spinnerRed);
+            drawSpinner(spinners[3], spinnerRed);
+        }
         if (hits.timer-- > 0) {
             context.drawImage(fire, (hits.x - 40) * blockSize, (hits.y - 40) * blockSize, 80 * blockSize, 80 * blockSize);
         }
