@@ -29,6 +29,7 @@ let hits = {};
 let rotation = 0;
 let spinners = [];
 let powerup;
+let name = '';
 
 
 socket.on("update", function (data) {
@@ -46,7 +47,7 @@ socket.on('win', function () {
     context.clearRect(0, 0, displaySize, displaySize);
     splash('👍😃🌝 You won! Waiting for new game...');
     setTimeout(function () {
-        socket.emit('waitForGame');
+        socket.emit('waitForGame', name);
     }, 2000);
 })
 
@@ -55,7 +56,7 @@ socket.on('lose', function () {
     context.clearRect(0, 0, displaySize, displaySize);
     splash('👎⚰️🚒 :( Waiting for new game...');
     setTimeout(function () {
-        socket.emit('waitForGame');
+        socket.emit('waitForGame', name);
     }, 2000);
 })
 
@@ -113,7 +114,7 @@ function drawSpinner(spinner, image) {
         context.font = '30px Comic Sans MS';
         context.fillStyle = 'rgba(255, 255, 255, 0.5)';
         context.textAlign = 'center';
-        context.fillText(spinner.name, x, y + h);
+        context.fillText(spinner.name, x, y + h * 3 / 5);
     }
 }
 
@@ -169,10 +170,11 @@ function frame() {
 
 function play() {
     let modal = document.getElementById('modal');
-    let name = document.getElementById('name');
+    let input = document.getElementById('name');
     modal.style.display = 'none';
     context.clearRect(0, 0, displaySize, displaySize);
     splash('Waiting for game... ⏳');
-    socket.emit('waitForGame', name.value);
+    name = input.value;
+    socket.emit('waitForGame', name);
     frame();
 };
