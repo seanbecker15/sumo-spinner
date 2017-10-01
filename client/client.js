@@ -179,7 +179,7 @@ function play(gameType) {
     modal.style.display = 'none';
     context.clearRect(0, 0, displaySize, displaySize);
     splash('Waiting for game... ⏳');
-    name = input.value;
+    name = input.value.substring(0, 20);
     socket.emit(gameType, name);
     frame();
 };
