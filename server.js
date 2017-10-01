@@ -35,7 +35,7 @@ function addToLeaderboard(playerName, wins) {
 		return obj.playerName === playerName;
 	});
 	if (element) {
-		element.wins = wins;
+		element.wins = Math.max(element.wins, wins);
 	} else {
 		scoreboard.push({ playerName, wins });
 	}
