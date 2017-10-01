@@ -11,15 +11,6 @@ function guid() {
     });
 }
 
-app.use("*", function (req, res, next) {
-    if (process.env.NODE_ENV === 'production')
-        if (req.headers['x-forwarded-proto'] != 'https')
-            return res.redirect('https://' + req.headers.host + req.url);
-        else
-            return next();
-    else
-        return next();
-});
 app.use(express.static(__dirname + "/client"));
 app.all("*", function (req, res) {
     res.redirect("/");
@@ -36,15 +27,24 @@ let clientsWaitingFour = [];
 let games = {};
 let clients = {};
 let maxGames = 5;
-
-class Spinner {
-    constructor(x = 0, y = 0, radius = 50) {
+class Powerup {
+    constructor(x = gridSize / 2, y = gridSize / 2, type = 'eggplant') {
         this.x = x;
         this.y = y;
+        this.type = type;
+    }
+}
+
+class Spinner {
+    constructor(x = 0, y = 0, name = '', radius = 50) {
+        this.x = x;
+        this.y = y;
+        this.name = name;
         this.dx = 0;
         this.dy = 0;
         this.radius = radius;
         this.dtheta = 5;
+        this.size = 1;
     }
     move() {
         if (this.x < 0 || this.x > gridSize || this.y < 0 || this.y > gridSize) {
@@ -52,29 +52,29 @@ class Spinner {
         }
         if (this.directionRequest) {
             if (this.directionRequest.includes('w')) {
-				if(this.dy >= 0)
-					this.dy += 1;
-				else
-					this.dy += 2.5;
+                if (this.dy >= 0)
+                    this.dy += 1;
+                else
+                    this.dy += 2.5;
 
             }
             if (this.directionRequest.includes('s')) {
-				if(this.dy <= 0)
-					this.dy -= 1;
-				else
-					this.dy -= 2.5;
+                if (this.dy <= 0)
+                    this.dy -= 1;
+                else
+                    this.dy -= 2.5;
             }
             if (this.directionRequest.includes('a')) {
-				if(this.dx <= 0)
-					this.dx -= 1;
-				else
-					this.dx -= 2.5;
+                if (this.dx <= 0)
+                    this.dx -= 1;
+                else
+                    this.dx -= 2.5;
             }
             if (this.directionRequest.includes('d')) {
-                if(this.dx >= 0)
-					this.dx += 1;
-				else
-					this.dx += 2.5;
+                if (this.dx >= 0)
+                    this.dx += 1;
+                else
+                    this.dx += 2.5;
             }
         }
         this.directionRequest = undefined;
@@ -91,6 +91,17 @@ class Spinner {
     input(key) {
         this.directionRequest = key;
     }
+    applyPowerup(powerup) {
+        switch (powerup.type) {
+            case 'eggplant':
+                this.size += 0.25;
+                this.radius += 25;
+                break;
+            case 'wind':
+                this.dtheta = this.dtheta + 2;
+                break;
+        }
+    }
 }
 
 class Game {
@@ -102,10 +113,11 @@ class Game {
         this.clientB = clients[clientIdB];
         this.clientB.isPlaying = true;
 		this.clientB.game = this;
-        this.spinnerA = new Spinner(200, 200);
-		this.spinnerB = new Spinner(gridSize - 200, gridSize - 200);
+        this.spinnerA = new Spinner(200, 200, this.clientA.name);
+		this.spinnerB = new Spinner(gridSize - 200, gridSize - 200, this.clientB.name);
 		this.fourplayers = fourplayers;
 		this.playersRemaining = 2;
+		this.powerup = new Powerup();
 		if(this.fourplayers) {
 			this.playersRemaining = 4;
 			this.clientC = clients[clientIdC];
@@ -114,8 +126,8 @@ class Game {
 			this.clientD = clients[clientIdD];
 			this.clientD.isPlaying = true;
 			this.clientD.game = this;
-			this.spinnerC = new Spinner(200, gridSize - 200);
-			this.spinnerD = new Spinner(gridSize - 200, 200);
+			this.spinnerC = new Spinner(200, gridSize - 200, this.clientC.name);
+			this.spinnerD = new Spinner(gridSize - 200, 200, this.clientD.name);
 		}
         gamesInProgress++;
         console.log(`Game ${this.gameId} starting...`);
@@ -130,15 +142,22 @@ class Game {
 			resultD = this.spinnerD.move();
 		}
 		this.detectCollision();
+		if (!this.powerup && Math.random() > 0.995) {
+            const x = Math.random() * gridSize;
+            const y = Math.random() * gridSize;
+            const type = (Math.random() > 0.5) ? 'eggplant' : 'wind';
+            this.powerup = new Powerup(x, y, type);
+        }
 		if(this.fourplayers) {
-			this.clientA.emit('update', [this.spinnerA, this.spinnerB, this.spinnerC, this.spinnerD]);
-			this.clientB.emit('update', [this.spinnerB, this.spinnerA, this.spinnerC, this.spinnerD]);
-			this.clientC.emit('update', [this.spinnerC, this.spinnerA, this.spinnerB, this.spinnerD]);
-			this.clientD.emit('update', [this.spinnerD, this.spinnerA, this.spinnerB, this.spinnerB]);
+			this.clientA.emit('update', { spinners: [this.spinnerA, this.spinnerB, this.spinnerC, this.spinnerD], powerup: this.powerup});
+			this.clientB.emit('update', { spinners: [this.spinnerB, this.spinnerA, this.spinnerC, this.spinnerD], powerup: this.powerup});
+			this.clientC.emit('update', { spinners: [this.spinnerC, this.spinnerA, this.spinnerB, this.spinnerD], powerup: this.powerup});
+			this.clientD.emit('update', { spinners: [this.spinnerD, this.spinnerA, this.spinnerB, this.spinnerB], powerup: this.powerup});
 		} else {
-			this.clientA.emit('update', [this.spinnerA, this.spinnerB]);
-			this.clientB.emit('update', [this.spinnerB, this.spinnerA]);
+			this.clientA.emit('update', { spinners: [this.spinnerA, this.spinnerB], powerup: this.powerup });
+			this.clientB.emit('update', { spinners: [this.spinnerB, this.spinnerA], powerup: this.powerup });
 		}
+		
         if (resultA === 'lose') {
             this.playerLeave('a');
         }
@@ -162,16 +181,28 @@ class Game {
 
     detectCollision() {
         if (this.distanceBetween() < (this.spinnerA.radius + this.spinnerB.radius)) {
-			const x = (this.spinnerA.x + this.spinnerB.x) / 2;
-			const y = (this.spinnerA.y + this.spinnerB.y) / 2;
-			this.clientA.emit('hit', {x, y});
-			this.clientB.emit('hit', {x, y});
+            const x = (this.spinnerA.x + this.spinnerB.x) / 2;
+            const y = (this.spinnerA.y + this.spinnerB.y) / 2;
+            this.clientA.emit('hit', { x, y });
+            this.clientB.emit('hit', { x, y });
             const tmpx = this.spinnerA.dx;
             const tmpy = this.spinnerA.dy;
-            this.spinnerA.dx = this.spinnerB.dx * this.spinnerB.dtheta / 5;
-            this.spinnerA.dy = this.spinnerB.dy * this.spinnerB.dtheta / 5;
-            this.spinnerB.dx = tmpx * this.spinnerA.dtheta / 5;
-            this.spinnerB.dy = tmpy * this.spinnerA.dtheta / 5;
+            this.spinnerA.dx = this.spinnerB.dx * this.spinnerB.size * this.spinnerB.dtheta / 5;
+            this.spinnerA.dy = this.spinnerB.dy * this.spinnerB.size * this.spinnerB.dtheta / 5;
+            this.spinnerB.dx = tmpx * this.spinnerA.size * this.spinnerA.dtheta / 5;
+            this.spinnerB.dy = tmpy * this.spinnerA.size * this.spinnerA.dtheta / 5;
+            if (this.spinnerA.dtheta > 2)
+                this.spinnerA.dtheta--;
+            if (this.spinnerB.dtheta > 2)
+                this.spinnerB.dtheta--;
+        }
+        if (this.powerup && this.distanceBetween(this.spinnerA, this.powerup) < this.spinnerA.radius) {
+            this.spinnerA.applyPowerup(this.powerup);
+            this.powerup = undefined;
+        }
+        if (this.powerup && this.distanceBetween(this.spinnerB, this.powerup) < this.spinnerB.radius) {
+            this.spinnerB.applyPowerup(this.powerup);
+            this.powerup = undefined;
         }
     }
     input(clientId, key) {
@@ -281,10 +312,16 @@ io.on("connection", function (client) {
     client.isConnected = true;
     client.isPlaying = false;
     clients[client.id] = client;
-    client.on('waitForGame', function () {
-        console.log(`Client ${client.id} has started waiting for a game`);
+    client.on('waitForGame', function (name) {
+        client.name = name;
+        console.log(`Client ${client.id} with name ${client.name} has started waiting for a game`);
         clientsWaiting.push(client.id);
-    });
+	});
+	client.on('waitForGameFour', function(name) {
+		client.name = name;
+        console.log(`Client ${client.id} with name ${client.name} has started waiting for a game`);
+        clientsWaitingFour.push(client.id);
+	});
     client.on("keyPress", function (key) {
         if (client.isPlaying) {
             client.game.input(client.id, key);

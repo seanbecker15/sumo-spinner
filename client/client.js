@@ -12,22 +12,30 @@ display.style.height = (displaySize / 2) + "px";
 let playing = false;
 
 
-
 let spinnerBlue = new Image();
 spinnerBlue.src = './spinner-blue.svg';
 let spinnerRed = new Image();
 spinnerRed.src = './spinner-red.svg';
 let fire = new Image();
 fire.src = './fire.png';
+let eggplant = new Image();
+eggplant.src = './eggplant.png';
+let potato = new Image();
+potato.src = './potato.png';
+let wind = new Image();
+wind.src = './wind.png';
 
 let hits = {};
 let rotation = 0;
 let spinners = [];
+let powerup;
+let name = '';
 
 
 socket.on("update", function (data) {
     splashMessage = '';
-    spinners = data;
+    spinners = data.spinners;
+    powerup = data.powerup;
 });
 
 socket.on('startGame', function (data) {
@@ -39,7 +47,7 @@ socket.on('win', function () {
     context.clearRect(0, 0, displaySize, displaySize);
     splash('👍😃🌝 You won! Waiting for new game...');
     setTimeout(function () {
-        socket.emit('waitForGame');
+        socket.emit('waitForGame', name);
     }, 2000);
 })
 
@@ -48,7 +56,7 @@ socket.on('lose', function () {
     context.clearRect(0, 0, displaySize, displaySize);
     splash('👎⚰️🚒 :( Waiting for new game...');
     setTimeout(function () {
-        socket.emit('waitForGame');
+        socket.emit('waitForGame', name);
     }, 2000);
 })
 
@@ -57,14 +65,6 @@ socket.on('hit', function (coordinates) {
     hits.x = coordinates.x;
     hits.y = coordinates.y;
 })
-
-window.onload = function () {
-    context.clearRect(0, 0, displaySize, displaySize);
-    splash('Waiting for game... ⏳');
-    socket.emit("waitForGame");
-    frame();
-};
-
 
 let keys = {};
 const converter = {
@@ -101,19 +101,46 @@ function drawSpinner(spinner, image) {
     context.save();
     let x = spinner.x * blockSize;
     let y = spinner.y * blockSize;
-    let w = 120 * blockSize;
-    let h = 120 * blockSize;
+    let w = spinner.radius * 2 * blockSize;
+    let h = spinner.radius * 2 * blockSize;
     context.translate(x, y);
     rotation += spinner.dtheta;
     context.rotate(rotation * Math.PI / 180);
     context.translate(-x, -y);
     context.drawImage(image, x - w / 2, y - h / 2, w, h);
-    context.drawImage(image, x - w / 2, y - h / 2, w, h);
     context.restore();
+    if (spinner.name) {
+        console.log(spinner.name);
+        context.font = '30px Comic Sans MS';
+        context.fillStyle = 'rgba(255, 255, 255, 0.5)';
+        context.textAlign = 'center';
+        context.fillText(spinner.name, x, y + h * 3 / 5);
+    }
+}
+
+function drawPowerup(powerup) {
+    if (powerup) {
+        let image;
+        switch (powerup.type) {
+            case 'eggplant':
+                image = eggplant;
+                break;
+            case 'potato':
+                image = potato;
+                break;
+            case 'wind':
+                image = wind;
+                break;
+        }
+        let x = powerup.x * blockSize;
+        let y = powerup.y * blockSize;
+        let w = 60 * blockSize;
+        let h = 60 * blockSize;
+        context.drawImage(image, x - w / 2, y - h / 2, w, h);
+    }
 }
 
 function splash(message) {
-    console.log('splashing...');
     splashMessage = message;
 }
 
@@ -137,7 +164,21 @@ function frame() {
             context.drawImage(fire, (hits.x - 40) * blockSize, (hits.y - 40) * blockSize, 80 * blockSize, 80 * blockSize);
         }
     }
+    if (powerup) {
+        drawPowerup(powerup);
+    }
     displaySplash();
     context.fill();
     requestAnimationFrame(frame);
 }
+
+function play() {
+    let modal = document.getElementById('modal');
+    let input = document.getElementById('name');
+    modal.style.display = 'none';
+    context.clearRect(0, 0, displaySize, displaySize);
+    splash('Waiting for game... ⏳');
+    name = input.value;
+    socket.emit('waitForGame', name);
+    frame();
+};
