@@ -197,9 +197,9 @@ class Game {
             this.spinnerA.dy = this.spinnerB.dy * this.spinnerB.size * this.spinnerB.dtheta / 5;
             this.spinnerB.dx = tmpx * this.spinnerA.size * this.spinnerA.dtheta / 5;
             this.spinnerB.dy = tmpy * this.spinnerA.size * this.spinnerA.dtheta / 5;
-            if (this.spinnerA.dtheta > 2)
+            if (this.spinnerA.dtheta > 6)
                 this.spinnerA.dtheta--;
-            if (this.spinnerB.dtheta > 2)
+            if (this.spinnerB.dtheta > 6)
                 this.spinnerB.dtheta--;
 		}
 		if (this.fourplayers) {
@@ -214,9 +214,9 @@ class Game {
 				this.spinnerA.dy = this.spinnerC.dy * this.spinnerC.size * this.spinnerC.dtheta / 5;
 				this.spinnerC.dx = tmpx * this.spinnerA.size * this.spinnerA.dtheta / 5;
 				this.spinnerC.dy = tmpy * this.spinnerA.size * this.spinnerA.dtheta / 5;
-				if (this.spinnerA.dtheta > 2)
+				if (this.spinnerA.dtheta > 6)
 					this.spinnerA.dtheta--;
-				if (this.spinnerC.dtheta > 2)
+				if (this.spinnerC.dtheta > 6)
 					this.spinnerC.dtheta--;
 			}
 			if (this.distanceBetween(this.spinnerA, this.spinnerD) < (this.spinnerA.radius + this.spinnerD.radius)) {
@@ -230,9 +230,9 @@ class Game {
 				this.spinnerA.dy = this.spinnerD.dy * this.spinnerD.size * this.spinnerD.dtheta / 5;
 				this.spinnerD.dx = tmpx * this.spinnerA.size * this.spinnerA.dtheta / 5;
 				this.spinnerD.dy = tmpy * this.spinnerA.size * this.spinnerA.dtheta / 5;
-				if (this.spinnerA.dtheta > 2)
+				if (this.spinnerA.dtheta > 6)
 					this.spinnerA.dtheta--;
-				if (this.spinnerD.dtheta > 2)
+				if (this.spinnerD.dtheta > 6)
 					this.spinnerD.dtheta--;
 			}
 			if (this.distanceBetween(this.spinnerB, this.spinnerC) < (this.spinnerB.radius + this.spinnerC.radius)) {
@@ -246,9 +246,9 @@ class Game {
 				this.spinnerB.dy = this.spinnerC.dy * this.spinnerC.size * this.spinnerC.dtheta / 5;
 				this.spinnerC.dx = tmpx * this.spinnerB.size * this.spinnerB.dtheta / 5;
 				this.spinnerC.dy = tmpy * this.spinnerB.size * this.spinnerB.dtheta / 5;
-				if (this.spinnerB.dtheta > 2)
+				if (this.spinnerB.dtheta > 6)
 					this.spinnerB.dtheta--;
-				if (this.spinnerC.dtheta > 2)
+				if (this.spinnerC.dtheta > 6)
 					this.spinnerC.dtheta--;
 			}
 			if (this.distanceBetween(this.spinnerB, this.spinnerD) < (this.spinnerB.radius + this.spinnerD.radius)) {
@@ -262,9 +262,9 @@ class Game {
 				this.spinnerB.dy = this.spinnerD.dy * this.spinnerD.size * this.spinnerD.dtheta / 5;
 				this.spinnerD.dx = tmpx * this.spinnerB.size * this.spinnerB.dtheta / 5;
 				this.spinnerD.dy = tmpy * this.spinnerB.size * this.spinnerB.dtheta / 5;
-				if (this.spinnerB.dtheta > 2)
+				if (this.spinnerB.dtheta > 6)
 					this.spinnerB.dtheta--;
-				if (this.spinnerD.dtheta > 2)
+				if (this.spinnerD.dtheta > 6)
 					this.spinnerD.dtheta--;
 			}
 			if (this.distanceBetween(this.spinnerC, this.spinnerD) < (this.spinnerC.radius + this.spinnerD.radius)) {
@@ -278,9 +278,9 @@ class Game {
 				this.spinnerC.dy = this.spinnerD.dy * this.spinnerD.size * this.spinnerD.dtheta / 5;
 				this.spinnerD.dx = tmpx * this.spinnerC.size * this.spinnerC.dtheta / 5;
 				this.spinnerD.dy = tmpy * this.spinnerC.size * this.spinnerC.dtheta / 5;
-				if (this.spinnerC.dtheta > 2)
+				if (this.spinnerC.dtheta > 6)
 					this.spinnerC.dtheta--;
-				if (this.spinnerD.dtheta > 2)
+				if (this.spinnerD.dtheta > 6)
 					this.spinnerD.dtheta--;
 			}
 		}
