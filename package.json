@@ -4,7 +4,6 @@
     "description": "like beyblades but memer",
     "main": "server.js",
     "scripts": {
-        "start": "node server.js",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {
@@ -20,5 +19,8 @@
     "dependencies": {
         "express": "latest",
         "socket.io": "latest"
+    },
+    "engines": {
+      "node": "10.x"
     }
 }
