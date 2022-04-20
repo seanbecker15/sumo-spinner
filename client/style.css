@@ -5,7 +5,7 @@
     position: relative;
 }
 
-button {
+.queue-button {
     background-color: #8BC34A;
     border: none;
     border-radius: 4px;
@@ -18,8 +18,20 @@ button {
     text-decoration: none;
 }
 
-button:hover {
+.queue-button:hover {
     cursor: pointer;
+}
+
+.commands {
+    width: 100%;
+}
+
+.commands button {
+    padding: 15px;
+}
+
+.left-right-wrapper button {
+    margin: 0 5%;
 }
 
 html {

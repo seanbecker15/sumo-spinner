@@ -29,7 +29,7 @@ let hits = {};
 let rotation = 0;
 let spinners = [];
 let powerup;
-let name = '';
+let username = '';
 let topfive;
 let playersOnline = 1;
 
@@ -81,6 +81,30 @@ const converter = {
     37: 'a', 65: 'a',
     39: 'd', 68: 'd'
 }
+
+document.getElementById('up').addEventListener('click', () => {
+    keys['w'] = true;
+    const keysPressed = Object.keys(keys).sort().join('');
+    socket.emit('keyPress', keysPressed);
+})
+
+document.getElementById('right').addEventListener('click', () => {
+    keys['d'] = true;
+    const keysPressed = Object.keys(keys).sort().join('');
+    socket.emit('keyPress', keysPressed);
+})
+
+document.getElementById('down').addEventListener('click', () => {
+    keys['s'] = true;
+    const keysPressed = Object.keys(keys).sort().join('');
+    socket.emit('keyPress', keysPressed);
+})
+
+document.getElementById('left').addEventListener('click', () => {
+    keys['a'] = true;
+    const keysPressed = Object.keys(keys).sort().join('');
+    socket.emit('keyPress', keysPressed);
+})
 
 document.onkeydown = function (event) {
     if (converter[event.keyCode]) {
