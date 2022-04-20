@@ -17,8 +17,8 @@
     },
     "homepage": "https://github.com/Meegul/spinpapi#readme",
     "dependencies": {
-        "express": "latest",
-        "socket.io": "latest"
+        "express": "*",
+        "socket.io": "*"
     },
     "engines": {
       "node": "10.x"
