@@ -33,6 +33,13 @@ let username = '';
 let topfive;
 let playersOnline = 1;
 
+document.addEventListener('keydown', (event) => {
+    // prevent scroll on up and down arrow
+    if (["ArrowUp", "ArrowDown"].includes(event.code)) {
+        event.preventDefault();
+    }
+})
+
 socket.on("update", function (data) {
     spinners = data.spinners;
     powerup = data.powerup;
