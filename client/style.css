@@ -1,8 +1,9 @@
 * {
-    font-family: "Comic Sans MS", "Comic Sans", cursive;
+    font-family: "Comic Sans MS", "Comic Sans", Optima, cursive;
     margin: 0;
     padding: 0;
     position: relative;
+    touch-action: manipulation;
 }
 
 .queue-button {
