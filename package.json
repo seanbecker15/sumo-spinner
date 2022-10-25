@@ -1,5 +1,5 @@
 {
-  "name": "spinpapi",
+  "name": "sumo-spinner-v2",
   "version": "0.0.1",
   "description": "like beyblades but memer",
   "main": "server.js",
@@ -8,17 +8,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Meegul/spinpapi.git"
+    "url": "git+https://github.com/seanbecker15/sumo-spinner.git"
   },
   "author": "",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/Meegul/spinpapi/issues"
+    "url": "https://github.com/seanbecker15/sumo-spinner/issues"
   },
-  "homepage": "https://github.com/Meegul/spinpapi#readme",
+  "homepage": "https://github.com/seanbecker15/sumo-spinner#readme",
   "dependencies": {
-    "express": "latest",
-    "socket.io": "latest"
+    "express": "^4.18.2",
+    "socket.io": "^4.5.3"
   },
   "engines": {
     "node": "10.x"
