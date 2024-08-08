@@ -240,11 +240,17 @@ function frame() {
   requestAnimationFrame(frame);
 }
 
+// Constants for game boundaries
+const MIN_BOUNDARY = 0;
+const MAX_BOUNDARY = 1000;
+const BOUNDARY_BUFFER = 50; // Buffer to avoid getting too close to the edge
+
+// Modified function to calculate distance between two points
 function distance(x1, y1, x2, y2) {
   return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 }
 
-// Add this function to determine the safest direction
+// Modified function to determine the safest direction
 function getSafestDirection(mySpinner, otherSpinners) {
   const directions = [
     { key: 'w', dx: 0, dy: -1 },
@@ -254,11 +260,17 @@ function getSafestDirection(mySpinner, otherSpinners) {
   ];
 
   let safestDirection = null;
-  let maxMinDistance = 0;
+  let maxScore = -Infinity;
 
   directions.forEach(dir => {
     const newX = mySpinner.x + dir.dx;
     const newY = mySpinner.y + dir.dy;
+
+    // Check if the new position is within bounds
+    if (newX < MIN_BOUNDARY + BOUNDARY_BUFFER || newX > MAX_BOUNDARY - BOUNDARY_BUFFER ||
+        newY < MIN_BOUNDARY + BOUNDARY_BUFFER || newY > MAX_BOUNDARY - BOUNDARY_BUFFER) {
+      return; // Skip this direction if it leads out of bounds
+    }
 
     let minDistance = Infinity;
     otherSpinners.forEach(spinner => {
@@ -268,8 +280,12 @@ function getSafestDirection(mySpinner, otherSpinners) {
       }
     });
 
-    if (minDistance > maxMinDistance) {
-      maxMinDistance = minDistance;
+    // Calculate score based on distance from other spinners and center of the game area
+    const centerDistance = distance(newX, newY, MAX_BOUNDARY/2, MAX_BOUNDARY/2);
+    const score = minDistance - (centerDistance / 1000); // Slight preference for central positions
+
+    if (score > maxScore) {
+      maxScore = score;
       safestDirection = dir.key;
     }
   });
@@ -277,11 +293,7 @@ function getSafestDirection(mySpinner, otherSpinners) {
   return safestDirection;
 }
 
-window.onAutoMove = () => {
-  setInterval(autoMove, 100);  // Adjust the interval as needed
-}
-
-// Add a new function to handle automatic movement
+// Modified autoMove function
 function autoMove() {
   if (playing && spinners.length > 0) {
     const mySpinner = spinners[0];  // Assuming the first spinner is always the player
@@ -291,8 +303,16 @@ function autoMove() {
       keys = { [safestDirection]: true };
       const keysPressed = Object.keys(keys).sort().join("");
       socket.emit("keyPress", keysPressed);
+    } else {
+      // If no safe direction is found, stop moving
+      keys = {};
+      socket.emit("keyPress", "");
     }
   }
+}
+
+window.onAutoMove = () => {
+  setInterval(autoMove, 100);  // Adjust the interval as needed
 }
 
 function play(gameType) {
