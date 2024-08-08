@@ -128,6 +128,7 @@ document.onkeydown = function (event) {
   }
 };
 
+
 document.onkeyup = function (event) {
   if (converter[event.keyCode]) {
     event = event || window.event;
@@ -237,6 +238,61 @@ function frame() {
   drawStats();
   context.fill();
   requestAnimationFrame(frame);
+}
+
+function distance(x1, y1, x2, y2) {
+  return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+}
+
+// Add this function to determine the safest direction
+function getSafestDirection(mySpinner, otherSpinners) {
+  const directions = [
+    { key: 'w', dx: 0, dy: -1 },
+    { key: 's', dx: 0, dy: 1 },
+    { key: 'a', dx: -1, dy: 0 },
+    { key: 'd', dx: 1, dy: 0 }
+  ];
+
+  let safestDirection = null;
+  let maxMinDistance = 0;
+
+  directions.forEach(dir => {
+    const newX = mySpinner.x + dir.dx;
+    const newY = mySpinner.y + dir.dy;
+
+    let minDistance = Infinity;
+    otherSpinners.forEach(spinner => {
+      if (spinner !== mySpinner) {
+        const dist = distance(newX, newY, spinner.x, spinner.y);
+        if (dist < minDistance) minDistance = dist;
+      }
+    });
+
+    if (minDistance > maxMinDistance) {
+      maxMinDistance = minDistance;
+      safestDirection = dir.key;
+    }
+  });
+
+  return safestDirection;
+}
+
+window.onAutoMove = () => {
+  setInterval(autoMove, 100);  // Adjust the interval as needed
+}
+
+// Add a new function to handle automatic movement
+function autoMove() {
+  if (playing && spinners.length > 0) {
+    const mySpinner = spinners[0];  // Assuming the first spinner is always the player
+    const safestDirection = getSafestDirection(mySpinner, spinners);
+
+    if (safestDirection) {
+      keys = { [safestDirection]: true };
+      const keysPressed = Object.keys(keys).sort().join("");
+      socket.emit("keyPress", keysPressed);
+    }
+  }
 }
 
 function play(gameType) {
